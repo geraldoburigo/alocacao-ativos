@@ -361,8 +361,8 @@ window.addEventListener('DOMContentLoaded', () => {
       });
     }catch(e){}
   }
-  recalcular();
   document.getElementById('alerta').style.display = (tb && tf) ? 'none' : 'block';
+  recalcular();
 });
 
 function salvarTokens(){
@@ -771,7 +771,6 @@ function switchTab(name){
   if(name==='aportes')   renderAportes(dados);
 }
 
-recalcular();
 </script>
 </body>
 </html>
