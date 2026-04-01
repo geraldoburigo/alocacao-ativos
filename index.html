@@ -158,7 +158,6 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
     <div class="tb-r">
       <div class="pill"><label>Aporte R$</label><input type="number" id="aporte" value="15000" oninput="re()"/></div>
       <div class="pill"><label>USD/BRL</label><input type="number" class="sm" id="dolar" value="5.80" step="0.01" oninput="re()"/></div>
-      <button class="btn btn-g" onclick="document.getElementById('m-cfg').style.display='flex'">⚙ Tokens</button>
       <button class="btn btn-g" id="btn-cot" onclick="buscarCotacoes()"><span id="fi-cot">↻</span> Cotações</button>
       <button class="btn btn-p btn-sm" id="btn-at" style="display:none" onclick="openAtivoMod()">+ Ativo</button>
     </div>
@@ -580,37 +579,37 @@ function re(){
 
 renderSB();
 
-function toFinnSym(a){
-  const m={NYSE:t=>t, NASDAQ:t=>t};
-  return m[a.bo]?.(a.tk)||null;
-}
-
 function toYahooSym(a){
-  const m={LSE:t=>`${t}.L`, XETRA:t=>`${t}.DE`};
-  return m[a.bo]?.(a.tk)||null;
+  const m={B3:t=>`${t}.SA`,LSE:t=>`${t}.L`,XETRA:t=>`${t}.DE`,NYSE:t=>t,NASDAQ:t=>t};
+  return m[a.bo]?.(a.tk)||`${a.tk}.SA`;
 }
 
-// Proxies CORS para Yahoo Finance
 const PROXIES=[
   url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
   url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
 ];
 
 async function fetchYahoo(sym){
-  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`;
-  for(const proxy of PROXIES){
-    try{
-      const to=new Promise((_,r)=>setTimeout(()=>r(new Error('to')),7000));
-      const res=await Promise.race([fetch(proxy(url)),to]);
-      if(!res.ok) continue;
-      const d=await res.json();
-      const meta=d?.chart?.result?.[0]?.meta;
-      if(meta?.regularMarketPrice && meta.regularMarketPrice>0){
-        const p=meta.regularMarketPrice;
-        const prev=meta.chartPreviousClose||p;
-        return{price:p, var_pct:((p-prev)/(prev||1))*100};
-      }
-    }catch(e){}
+  const urls=[
+    `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`,
+  ];
+  for(const baseUrl of urls){
+    for(const proxy of PROXIES){
+      try{
+        const to=new Promise((_,r)=>setTimeout(()=>r(new Error('to')),7000));
+        const res=await Promise.race([fetch(proxy(baseUrl)),to]);
+        if(!res.ok) continue;
+        const d=await res.json();
+        const meta=d?.chart?.result?.[0]?.meta;
+        if(meta?.regularMarketPrice>0){
+          const p=meta.regularMarketPrice;
+          const prev=meta.chartPreviousClose||p;
+          return{price:p,var_pct:((p-prev)/(prev||1))*100};
+        }
+      }catch(e){}
+    }
   }
   return null;
 }
@@ -623,88 +622,42 @@ async function buscarCotacoes(){
   btn.disabled=true;
   fi.innerHTML='<span style="display:inline-block;animation:spin .8s linear infinite">↻</span>';
 
-  const tb=document.getElementById('tok-brapi').value.trim();
-  const tf=document.getElementById('tok-finn').value.trim();
   const ativos=DB[CID]?.ativos||[];
+  const tb=localStorage.getItem('tok_brapi')||'';
+  const ok=[], manual=[];
 
-  const resultados={};
-  ativos.forEach(a=>resultados[a.tk]='pendente');
-
-  // ── brapi → B3 ──
-  const b3=ativos.filter(a=>a.bo==='B3');
-  if(!tb && b3.length){
-    b3.forEach(a=>resultados[a.tk]='sem-token-brapi');
-  } else if(tb && b3.length){
-    const validos=b3.filter(a=>/^[A-Z0-9]{3,12}$/.test(a.tk));
-    b3.filter(a=>!/^[A-Z0-9]{3,12}$/.test(a.tk)).forEach(a=>resultados[a.tk]='manual');
+  // ── brapi para B3 quando tiver token ──
+  const b3=ativos.filter(a=>a.bo==='B3'&&/^[A-Z0-9]{3,12}$/.test(a.tk));
+  const b3Sucesso=new Set();
+  if(tb&&b3.length){
     const chunks=(arr,n)=>{const r=[];for(let i=0;i<arr.length;i+=n)r.push(arr.slice(i,i+n));return r;};
-    for(const chunk of chunks(validos.map(a=>a.tk),10)){
+    for(const chunk of chunks(b3.map(a=>a.tk),10)){
       try{
-        const r=await fetch(`https://brapi.dev/api/quote/${chunk.join(',')}?token=${tb}`,{method:'GET', mode:'cors', cache:'no-cache'});
-        if(!r.ok) throw new Error('HTTP '+r.status);
+        const r=await fetch(`https://brapi.dev/api/quote/${chunk.join(',')}?token=${tb}`,{mode:'cors'});
+        if(!r.ok) continue;
         const data=await r.json();
-        // Debug: mostrar resposta da API
-        console.log('brapi response:', JSON.stringify(data).substring(0,500));
-        const encontrados=new Set((data.results||[]).map(q=>q.symbol));
         (data.results||[]).forEach(q=>{
-          const a=ativos.find(x=>x.tk===q.symbol);
-          if(a && q.regularMarketPrice>0){
-            a.cotacao=q.regularMarketPrice;
-            varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};
-            resultados[a.tk]='ok';
-          } else if(a){ resultados[a.tk]='manual'; }
+          if(q.regularMarketPrice>0){
+            const a=ativos.find(x=>x.tk===q.symbol);
+            if(a){a.cotacao=q.regularMarketPrice;varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};b3Sucesso.add(a.tk);ok.push(a.tk);}
+          }
         });
-        chunk.forEach(tk=>{ if(!encontrados.has(tk)) resultados[tk]='tentar-yahoo'; });
-      }catch(e){ chunk.forEach(tk=>resultados[tk]='tentar-yahoo'); }
+      }catch(e){}
     }
   }
 
-  // ── Yahoo fallback para B3 tickers não encontrados no brapi ──
-  const b3Fallback=ativos.filter(a=>a.bo==='B3'&&resultados[a.tk]==='tentar-yahoo');
-  await Promise.all(b3Fallback.map(async a=>{
-    const r=await fetchYahoo(`${a.tk}.SA`);
-    if(r){ a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; resultados[a.tk]='ok'; }
-    else { resultados[a.tk]='manual'; }
-  }));
-
-  // ── Yahoo Finance → LSE / XETRA (sem custo, via proxy CORS) ──
-  const lse=ativos.filter(a=>['LSE','XETRA'].includes(a.bo));
-  await Promise.all(lse.map(async a=>{
-    const sym=toYahooSym(a); if(!sym){ resultados[a.tk]='manual'; return; }
+  // ── Yahoo para todos os que não foram buscados pelo brapi ──
+  const restantes=ativos.filter(a=>!b3Sucesso.has(a.tk));
+  await Promise.all(restantes.map(async a=>{
+    const sym=toYahooSym(a);
     const r=await fetchYahoo(sym);
-    if(r){ a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; resultados[a.tk]='ok'; }
-    else { resultados[a.tk]='manual'; }
+    if(r){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
+    else manual.push(a.tk);
   }));
-
-  // ── Finnhub → NYSE / NASDAQ (free tier funciona para EUA) ──
-  const us=ativos.filter(a=>['NYSE','NASDAQ'].includes(a.bo));
-  if(!tf && us.length){
-    us.forEach(a=>resultados[a.tk]='sem-token-finnhub');
-  } else if(tf && us.length){
-    await Promise.all(us.map(async a=>{
-      const sym=toFinnSym(a); if(!sym){ resultados[a.tk]='manual'; return; }
-      try{
-        const to=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),8000));
-        const res=await Promise.race([fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${tf}`),to]);
-        if(!res.ok) throw new Error('HTTP '+res.status);
-        const data=await res.json();
-        if(data.c && data.c>0){ a.cotacao=data.c; varMap[a.tk]={var_pct:data.dp||0}; resultados[a.tk]='ok'; }
-        else { resultados[a.tk]='manual'; }
-      }catch(e){ resultados[a.tk]='erro'; }
-    }));
-  }
-
-  // ── Resumo ──
-  const ok     =ativos.filter(a=>resultados[a.tk]==='ok').map(a=>a.tk);
-  const manual =ativos.filter(a=>['manual','erro'].includes(resultados[a.tk])).map(a=>a.tk);
-  const semB   =ativos.filter(a=>resultados[a.tk]==='sem-token-brapi').map(a=>a.tk);
-  const semF   =ativos.filter(a=>resultados[a.tk]==='sem-token-finnhub').map(a=>a.tk);
 
   let msg='';
-  if(ok.length)  msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
-  if(manual.length) msg+=`⚠ Insira manualmente: ${manual.join(', ')}\n\n`;
-  if(semB.length)   msg+=`ℹ Token brapi ausente (B3): ${semB.join(', ')}\n\n`;
-  if(semF.length)   msg+=`ℹ Token Finnhub ausente (NYSE/NASDAQ): ${semF.join(', ')}`;
+  if(ok.length)     msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
+  if(manual.length) msg+=`⚠ Insira manualmente: ${manual.join(', ')}`;
   if(msg) alert(msg.trim());
 
   saveDB();
