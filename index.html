@@ -9,7 +9,7 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
   --bg:#0c0c0f;--bg2:#131318;--bg3:#1a1a22;--bg4:#22222d;
-  --border:rgba(255,255,255,0.0aa6);--border2:rgba(255,255,255,0.12);
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
   --text:#eeedf5;--text2:#9896aa;--text3:#55546a;
   --accent:#6c63ff;--accent2:#9b96ff;
   --green:#34d399;--red:#f87171;--amber:#fbbf24;--teal:#22d3ee;
@@ -654,10 +654,18 @@ async function buscarCotacoes(){
             resultados[a.tk]='ok';
           } else if(a){ resultados[a.tk]='manual'; }
         });
-        chunk.forEach(tk=>{ if(!encontrados.has(tk)) resultados[tk]='manual'; });
-      }catch(e){ chunk.forEach(tk=>resultados[tk]='erro'); }
+        chunk.forEach(tk=>{ if(!encontrados.has(tk)) resultados[tk]='tentar-yahoo'; });
+      }catch(e){ chunk.forEach(tk=>resultados[tk]='tentar-yahoo'); }
     }
   }
+
+  // ── Yahoo fallback para B3 tickers não encontrados no brapi ──
+  const b3Fallback=ativos.filter(a=>a.bo==='B3'&&resultados[a.tk]==='tentar-yahoo');
+  await Promise.all(b3Fallback.map(async a=>{
+    const r=await fetchYahoo(`${a.tk}.SA`);
+    if(r){ a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; resultados[a.tk]='ok'; }
+    else { resultados[a.tk]='manual'; }
+  }));
 
   // ── Yahoo Finance → LSE / XETRA (sem custo, via proxy CORS) ──
   const lse=ativos.filter(a=>['LSE','XETRA'].includes(a.bo));
