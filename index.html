@@ -10,12 +10,11 @@
 :root{
   --bg:#0c0c0f;--bg2:#131318;--bg3:#1a1a22;--bg4:#22222d;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
-  --text:#eeedf5;--text2:#9896aa;--text3:#55546a;a
+  --text:#eeedf5;--text2:#9896aa;--text3:#55546a;
   --accent:#6c63ff;--accent2:#9b96ff;
   --green:#34d399;--red:#f87171;--amber:#fbbf24;--teal:#22d3ee;
 }
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:13px;display:flex;height:100vh;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:14px;display:flex;height:100vh;overflow:hidden;}
 
 /* SIDEBAR */
 .sb{width:210px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
@@ -79,12 +78,12 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 .tbl-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;min-width:900px;}
 thead th{
-  padding:7px 11px;text-align:right;font-size:10px;text-transform:uppercase;
+  padding:8px 13px;text-align:right;font-size:11px;text-transform:uppercase;
   letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);
   font-weight:500;white-space:nowrap;background:var(--bg3);
 }
 thead th:first-child{text-align:left;}
-.th-group{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);
+.th-group{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);
   background:var(--bg4);padding:4px 11px;text-align:center;border-bottom:1px solid var(--border);}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
 tbody tr:last-child{border-bottom:none;}
@@ -92,12 +91,12 @@ tbody tr:hover{background:rgba(255,255,255,.015);}
 tbody tr.p1{border-left:2px solid var(--red);}
 tbody tr.p2{border-left:2px solid var(--amber);}
 tbody tr.p3{border-left:2px solid var(--accent);}
-tbody td{padding:8px 11px;font-size:12px;text-align:right;vertical-align:middle;font-family:monospace;}
+tbody td{padding:10px 13px;font-size:13px;text-align:right;vertical-align:middle;font-family:monospace;}
 tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
-.at-tk{font-weight:600;font-size:13px;color:var(--text);font-family:monospace;}
-.at-info{font-size:11px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
+.at-tk{font-weight:600;font-size:15px;color:var(--text);font-family:monospace;}
+.at-info{font-size:12px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
 .at-bdg{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
-.badge{display:inline-flex;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:500;}
+.badge{display:inline-flex;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:500;}
 .b-brl{background:rgba(52,211,153,.1);color:#34d399;}
 .b-usd{background:rgba(34,211,238,.1);color:#22d3ee;}
 .b-rf{background:rgba(52,211,153,.12);color:#34d399;}
@@ -109,14 +108,16 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 
 /* Editable pos input */
 .pos-input{
-  background:var(--bg3);border:1px solid transparent;border-radius:5px;
-  padding:4px 7px;font-size:12px;font-family:monospace;color:var(--text);
-  text-align:right;outline:none;width:100px;transition:border .15s;
+  background:var(--bg3);border:1px solid var(--border2);border-radius:8px;
+  padding:7px 11px;font-size:13px;font-family:monospace;color:var(--text);
+  text-align:right;outline:none;width:105px;transition:border .15s,background .15s;
+  -moz-appearance:textfield;
 }
-.pos-input:hover{border-color:var(--border2);}
+.pos-input::-webkit-outer-spin-button,
+.pos-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.pos-input:hover{border-color:rgba(255,255,255,.25);}
 .pos-input:focus{border-color:var(--accent);background:var(--bg4);}
 .pos-usd{color:var(--teal);}
-.pos-sub{font-size:10px;color:var(--text3);margin-top:2px;text-align:right;}
 
 .gp{color:#34d399;font-weight:500;}.gn{color:#f87171;font-weight:500;}.gne{color:var(--text3);}
 .ap-val{color:#34d399;font-weight:600;}
@@ -124,7 +125,7 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 .ap-usd-val{color:var(--teal);}
 .ap-usd-val.z{color:var(--text3);}
 
-.pct-foot{display:flex;align-items:center;gap:8px;font-size:11px;padding:8px 14px;background:var(--bg3);border-top:1px solid var(--border);}
+.pct-foot{display:flex;align-items:center;gap:8px;font-size:12px;padding:10px 16px;background:var(--bg3);border-top:1px solid var(--border);}
 .add-row{padding:8px 14px;}
 
 .li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
@@ -288,7 +289,6 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderSB();
   const ids=Object.keys(DB);
   if(ids.length) sel(ids[0]);
-  fetchDolar();
 });
 
 function saveToks(){
@@ -532,7 +532,7 @@ function re(){
     const cotStr=`
       <input class="pos-input ${isBRL?'':'pos-usd'}" type="number" value="${cot||''}"
         step="0.01" placeholder="0.00"
-        onchange="updCotacao(${origIdx},this.value)" style="width:88px"/>
+        onblur="updCotacao(${origIdx},this.value)" style="width:88px"/>
       ${vr?`<div style="font-size:10px;color:${vr.var_pct>=0?'var(--green)':'var(--red)'}">
         ${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(1)}%</div>`
       :''}
@@ -546,7 +546,7 @@ function re(){
           <div class="at-bdg">${classBadge(a.cl)}<span class="badge ${isBRL?'b-brl':'b-usd'}">${a.mo}</span></div>
         </td>
         <td style="border-left:1px solid var(--border)">${cotStr}</td>
-        <td><input class="pos-input" type="number" value="${qt}" min="0" step="1" onchange="updCotas(${origIdx},this.value)" style="width:80px"/></td>
+        <td><input class="pos-input" type="number" value="${qt}" min="0" step="1" onblur="updCotas(${origIdx},this.value)" style="width:80px"/></td>
         <td>${a.v>0?'R$ '+fmt(a.v):'—'}</td>
         <td style="border-right:1px solid var(--border);color:var(--teal)">${a.v>0?'USD '+fmt(a.v/d):'—'}</td>
         <td>R$ ${fmt(a.des_brl)}</td>
