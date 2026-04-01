@@ -4,772 +4,707 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alocação de Ativos</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
+*{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --bg:#0f0f13;--bg2:#16161c;--bg3:#1e1e27;--bg4:#25252f;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.13);
-  --text:#f0eff5;--text2:#9998a8;--text3:#5e5d6e;
-  --accent:#7c6af5;--accent2:#a099ff;
-  --green:#3ecf8e;--red:#e85d5d;--amber:#f5a623;--teal:#38bdf8;--pink:#f472b6;
-  --font:'Sora',sans-serif;--mono:'DM Mono',monospace;
-  --r:12px;--rs:8px;
+  --bg:#0c0c0f;--bg2:#131318;--bg3:#1a1a22;--bg4:#22222d;
+  --border:rgba(255,255,255,0.0aa6);--border2:rgba(255,255,255,0.12);
+  --text:#eeedf5;--text2:#9896aa;--text3:#55546a;
+  --accent:#6c63ff;--accent2:#9b96ff;
+  --green:#34d399;--red:#f87171;--amber:#fbbf24;--teal:#22d3ee;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;min-height:100vh;}
-.app{max-width:1260px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;font-size:13px;display:flex;height:100vh;overflow:hidden;}
 
-/* Header */
-.header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1.75rem;flex-wrap:wrap;gap:1rem;}
-.header h1{font-size:1.45rem;font-weight:600;letter-spacing:-.02em;}
-.header p{color:var(--text2);font-size:.85rem;margin-top:4px;}
-.hright{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+/* SIDEBAR */
+.sb{width:210px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;}
+.sb-logo{padding:16px 14px 10px;border-bottom:1px solid var(--border);}
+.sb-logo h1{font-size:15px;font-weight:600;color:var(--accent2);}
+.sb-logo p{font-size:11px;color:var(--text3);margin-top:2px;}
+.sb-sec{padding:10px 14px 4px;font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--text3);font-weight:500;}
+.cli-list{flex:1;overflow-y:auto;padding:4px 6px;}
+.cli{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:8px;cursor:pointer;font-size:12px;color:var(--text2);margin-bottom:2px;transition:all .12s;}
+.cli:hover{background:var(--bg3);color:var(--text);}
+.cli.active{background:rgba(108,99,255,.18);color:var(--accent2);}
+.cli-av{width:26px;height:26px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+.cli.active .cli-av{background:rgba(108,99,255,.3);color:var(--accent2);}
+.sb-bot{padding:8px 6px 14px;}
+.btn-add-cli{width:100%;padding:8px;border-radius:8px;background:transparent;border:1px dashed rgba(108,99,255,.3);color:var(--accent2);font-size:12px;cursor:pointer;transition:all .12s;}
+.btn-add-cli:hover{background:rgba(108,99,255,.1);}
 
-/* Token */
-.tok{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rs);padding:6px 10px;}
-.tok label{font-size:.67rem;color:var(--text3);white-space:nowrap;text-transform:uppercase;letter-spacing:.06em;}
-.tok input{background:transparent;border:none;outline:none;color:var(--text2);font-family:var(--mono);font-size:.74rem;width:175px;}
-.dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0;}
-.dot.ok{background:var(--green);}.dot.err{background:var(--red);}
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap;gap:8px;flex-shrink:0;}
+.tb-l h2{font-size:13px;font-weight:500;}
+.tb-l p{font-size:11px;color:var(--text3);}
+.tb-r{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
+.pill{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 9px;}
+.pill label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
+.pill input{background:transparent;border:none;outline:none;color:var(--amber);font-size:12px;font-weight:500;width:90px;}
+.pill input.sm{width:52px;}
+.btn{padding:5px 11px;border-radius:7px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--border2);background:transparent;color:var(--text2);transition:all .12s;font-family:inherit;}
+.btn:hover{background:var(--bg3);color:var(--text);}
+.btn-p{background:var(--accent);color:#fff;border-color:var(--accent);}
+.btn-p:hover{background:var(--accent2);}
+.btn-g{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.25);color:var(--green);}
+.btn-g:hover{background:rgba(52,211,153,.2);}
+.btn-sm{padding:3px 7px;font-size:10px;}
+.btn-d{border-color:rgba(248,113,113,.25);color:var(--red);}
+.btn-d:hover{background:rgba(248,113,113,.08);}
 
-/* Tabs */
-.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:2rem;}
-.tab{padding:.58rem 1rem;font-size:.8rem;font-weight:500;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;}
-.tab:hover{color:var(--text2);}.tab.active{color:var(--accent2);border-color:var(--accent);}
-.tc{display:none;}.tc.active{display:block;}
+.content{flex:1;overflow-y:auto;padding:14px 16px;}
 
-/* Summary cards */
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:2rem;}
-.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1rem 1.1rem;}
-.sc .lbl{font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:6px;}
-.sc .val{font-size:1.18rem;font-weight:600;font-family:var(--mono);}
-.sc .sub{font-size:.7rem;color:var(--text2);margin-top:3px;}
-.va{color:var(--accent2)}.vg{color:var(--green)}.vt{color:var(--teal)}.vam{color:var(--amber)}
+/* SUMMARY CARDS */
+.strip{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px;}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;}
+.sc .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:5px;}
+.sc .val{font-size:18px;font-weight:600;font-family:monospace;}
+.sc .sub{font-size:11px;color:var(--text2);margin-top:3px;}
 
-/* Config grid */
-.cg{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
-@media(max-width:640px){.cg{grid-template-columns:1fr;}}
-.cc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;}
-.cc h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:1rem;}
-.field{margin-bottom:.85rem;}.field label{display:block;font-size:.74rem;color:var(--text2);margin-bottom:5px;}
-.field input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:.48rem .75rem;font-size:.85rem;font-family:var(--mono);color:var(--text);outline:none;transition:border .15s;}
-.field input:focus{border-color:var(--accent);}
-.px{display:flex;align-items:center;}.px span{background:var(--bg4);border:1px solid var(--border);border-right:none;border-radius:var(--rs) 0 0 var(--rs);padding:.48rem .6rem;font-size:.74rem;color:var(--text3);}
-.px input{border-radius:0 var(--rs) var(--rs) 0;}
+/* CHARTS + TABLE side by side */
+.main-layout{display:grid;grid-template-columns:300px 1fr;gap:12px;margin-bottom:14px;align-items:start;}
+.charts-col{display:flex;flex-direction:column;gap:10px;}
+.cc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.cc h4{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px;}
+.cleg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-bottom:8px;}
+.cl-i{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
+.cl-d{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
 
-/* Buttons */
-.btn{padding:.5rem 1rem;border-radius:var(--rs);font-size:.8rem;font-weight:500;cursor:pointer;transition:all .15s;border:none;font-family:var(--font);}
-.btn-p{background:var(--accent);color:#fff;}.btn-p:hover{background:var(--accent2);}
-.btn-g{background:transparent;border:1px solid var(--border2);color:var(--text2);}.btn-g:hover{background:var(--bg3);color:var(--text);}
-.btn-d{background:transparent;border:1px solid rgba(232,93,93,.3);color:var(--red);}.btn-d:hover{background:rgba(232,93,93,.08);}
-.btn-sm{padding:.28rem .58rem;font-size:.72rem;}
-.btn-fetch{background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.3);color:var(--green);padding:.44rem .875rem;border-radius:var(--rs);font-size:.75rem;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:5px;font-family:var(--font);}
-.btn-fetch:hover{background:rgba(62,207,142,.18);}.btn-fetch:disabled{opacity:.4;cursor:not-allowed;}
-@keyframes spin{to{transform:rotate(360deg);}}.spin{display:inline-block;animation:spin .8s linear infinite;}
+/* MAIN TABLE */
+.aw{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.aw-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
+.aw-h h3{font-size:13px;font-weight:500;}
+.aw-h-right{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);}
+.tbl-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;min-width:900px;}
+thead th{
+  padding:7px 11px;text-align:right;font-size:10px;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);
+  font-weight:500;white-space:nowrap;background:var(--bg3);
+}
+thead th:first-child{text-align:left;}
+.th-group{font-size:9px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);
+  background:var(--bg4);padding:4px 11px;text-align:center;border-bottom:1px solid var(--border);}
+tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
+tbody tr:last-child{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.015);}
+tbody tr.p1{border-left:2px solid var(--red);}
+tbody tr.p2{border-left:2px solid var(--amber);}
+tbody tr.p3{border-left:2px solid var(--accent);}
+tbody td{padding:8px 11px;font-size:12px;text-align:right;vertical-align:middle;font-family:monospace;}
+tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
+.at-tk{font-weight:600;font-size:13px;color:var(--text);font-family:monospace;}
+.at-info{font-size:11px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
+.at-bdg{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+.badge{display:inline-flex;padding:2px 7px;border-radius:100px;font-size:10px;font-weight:500;}
+.b-brl{background:rgba(52,211,153,.1);color:#34d399;}
+.b-usd{background:rgba(34,211,238,.1);color:#22d3ee;}
+.b-rf{background:rgba(52,211,153,.12);color:#34d399;}
+.b-rv{background:rgba(108,99,255,.14);color:#9b96ff;}
+.b-fi{background:rgba(251,191,36,.1);color:#fbbf24;}
+.b-cm{background:rgba(251,146,60,.1);color:#fb923c;}
+.b-mm{background:rgba(244,114,182,.1);color:#f472b6;}
+.b-al{background:rgba(96,165,250,.1);color:#60a5fa;}
 
-/* Table wrapper */
-.tw{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:1.5rem;}
-.th2{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
-.th2 h3{font-size:.8rem;font-weight:500;}
-.tscroll{overflow-x:auto;}
-.tbl{width:100%;border-collapse:collapse;}
-.tbl thead th{padding:.58rem .8rem;text-align:left;font-size:.63rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;white-space:nowrap;}
-.tbl thead th:not(:first-child){text-align:right;}
-.tbl tbody td{padding:.58rem .8rem;font-size:.79rem;border-bottom:1px solid var(--border);vertical-align:middle;}
-.tbl tbody td:not(:first-child){text-align:right;font-family:var(--mono);}
-.tbl tbody tr:last-child td{border-bottom:none;}
-.tbl tbody tr:hover td{background:rgba(255,255,255,.02);}
-.tbl input{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.27rem .48rem;font-size:.79rem;font-family:var(--mono);color:var(--text);text-align:right;outline:none;}
-.tbl input:focus{border-color:var(--accent);}
-.tbl input.ti{text-align:left;width:100px;text-transform:uppercase;}
-.tbl input.ci{width:76px;}.tbl input.pi{width:60px;}
-.tbl select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.27rem .48rem;font-size:.72rem;color:var(--text);outline:none;}
+/* Editable pos input */
+.pos-input{
+  background:var(--bg3);border:1px solid transparent;border-radius:5px;
+  padding:4px 7px;font-size:12px;font-family:monospace;color:var(--text);
+  text-align:right;outline:none;width:100px;transition:border .15s;
+}
+.pos-input:hover{border-color:var(--border2);}
+.pos-input:focus{border-color:var(--accent);background:var(--bg4);}
+.pos-usd{color:var(--teal);}
+.pos-sub{font-size:10px;color:var(--text3);margin-top:2px;text-align:right;}
 
-/* Exchange badge */
-.exch-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:6px;font-size:.66rem;font-weight:600;font-family:var(--mono);letter-spacing:.03em;cursor:default;}
-.ex-b3{background:rgba(62,207,142,.13);color:var(--green);border:1px solid rgba(62,207,142,.25);}
-.ex-lse{background:rgba(56,189,248,.13);color:var(--teal);border:1px solid rgba(56,189,248,.25);}
-.ex-us{background:rgba(124,106,245,.13);color:var(--accent2);border:1px solid rgba(124,106,245,.25);}
-.ex-eu{background:rgba(245,166,35,.13);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
-.ex-manual{background:rgba(255,255,255,.06);color:var(--text3);border:1px solid var(--border);}
+.gp{color:#34d399;font-weight:500;}.gn{color:#f87171;font-weight:500;}.gne{color:var(--text3);}
+.ap-val{color:#34d399;font-weight:600;}
+.ap-val.z{color:var(--text3);font-weight:400;}
+.ap-usd-val{color:var(--teal);}
+.ap-usd-val.z{color:var(--text3);}
 
-/* Currency tag */
-.curr{font-size:.62rem;padding:1px 5px;border-radius:4px;font-family:var(--mono);font-weight:600;}
-.curr-brl{background:rgba(62,207,142,.1);color:var(--green);}
-.curr-usd{background:rgba(124,106,245,.1);color:var(--accent2);}
-.curr-gbp{background:rgba(56,189,248,.1);color:var(--teal);}
-.curr-eur{background:rgba(245,166,35,.1);color:var(--amber);}
+.pct-foot{display:flex;align-items:center;gap:8px;font-size:11px;padding:8px 14px;background:var(--bg3);border-top:1px solid var(--border);}
+.add-row{padding:8px 14px;}
 
-/* Variation */
-.vp{color:var(--green);font-size:.7rem;}.vn{color:var(--red);font-size:.7rem;}
-
-/* Badges */
-.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:100px;font-size:.63rem;font-weight:500;}
-.brf{background:rgba(62,207,142,.12);color:var(--green);}
-.brv{background:rgba(124,106,245,.15);color:var(--accent2);}
-.bmm{background:rgba(245,166,35,.12);color:var(--amber);}
-
-/* Pct bar */
-.pct-bar{display:flex;align-items:center;gap:8px;font-size:.74rem;padding:.58rem 1.25rem;background:var(--bg3);border-top:1px solid var(--border);}
-.pct-v{font-family:var(--mono);font-weight:500;}
-.pok{color:var(--green);}.pwarn{color:var(--amber);}.perr{color:var(--red);}
-.add-rw{padding:.7rem 1.25rem;}
-
-/* Aportes */
-.ar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.ah{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
-.ah h3{font-size:.8rem;font-weight:500;}
-.at-wrap{display:flex;gap:1.5rem;flex-wrap:wrap;}
-.at-i{font-size:.74rem;color:var(--text2);}.at-i strong{font-family:var(--mono);}
-.ahr{display:grid;grid-template-columns:1.5fr 95px 68px 68px 70px 96px 54px;padding:.42rem 1.25rem;border-bottom:1px solid var(--border);}
-.ahr span{font-size:.6rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);font-weight:500;text-align:right;}
-.ahr span:first-child{text-align:left;}
-.ai{display:grid;grid-template-columns:1.5fr 95px 68px 68px 70px 96px 54px;align-items:center;padding:.68rem 1.25rem;border-bottom:1px solid var(--border);transition:background .1s;}
-.ai:last-child{border-bottom:none;}.ai:hover{background:rgba(255,255,255,.02);}
-.ai.p1{border-left:2px solid var(--red);}.ai.p2{border-left:2px solid var(--amber);}
-.ai.p3{border-left:2px solid var(--accent);}.ai.p0{border-left:2px solid transparent;opacity:.4;}
-.tn{font-weight:500;font-family:var(--mono);font-size:.8rem;}
-.ct{font-size:.62rem;color:var(--text3);margin-top:1px;}
-.av{font-family:var(--mono);font-weight:500;text-align:right;color:var(--green);font-size:.8rem;}
-.av.z{color:var(--text3);}
-.cv{font-family:var(--mono);font-weight:500;text-align:right;color:var(--teal);font-size:.8rem;}
-.cv.z{color:var(--text3);}
-.pc{text-align:right;font-size:.74rem;color:var(--text2);font-family:var(--mono);}
-.gc{text-align:right;font-size:.74rem;font-family:var(--mono);}
-.gn{color:var(--red);}.gp{color:var(--green);}.gne{color:var(--text3);}
-.al-col{display:flex;justify-content:flex-end;}
-.al-track{width:46px;height:4px;background:var(--bg4);border-radius:2px;overflow:hidden;position:relative;}
-.al-fill{height:100%;border-radius:2px;background:var(--accent);position:absolute;top:0;left:0;}
-.al-over{background:var(--amber);}
-
-/* Charts */
-.chg{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:2rem;}
-@media(max-width:700px){.chg{grid-template-columns:1fr;}}
-.chc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;}
-.chc h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:1.1rem;}
-
-/* Legend */
-.legend{display:flex;gap:1rem;margin-bottom:1rem;flex-wrap:wrap;}
-.li{display:flex;align-items:center;gap:5px;font-size:.67rem;color:var(--text2);}
+.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
 .ld{width:8px;height:8px;border-radius:2px;}
 
-/* Alert */
-.alert-i{padding:.72rem 1rem;border-radius:var(--rs);font-size:.79rem;margin-bottom:1.25rem;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);color:var(--teal);}
-
-/* Bolsas info box */
-.bolsas-info{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:1rem;}
-.bi{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:.6rem .875rem;}
-.bi .name{font-size:.72rem;font-weight:500;margin-bottom:3px;}
-.bi .detail{font-size:.65rem;color:var(--text3);}
-
-/* Moeda conversion note */
-.conv-note{font-size:.68rem;color:var(--text3);font-style:italic;}
-
-select{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:.3rem .5rem;font-size:.8rem;color:var(--text);outline:none;font-family:var(--font);}
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;padding:18px;width:440px;max-width:95vw;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:14px;font-weight:500;margin-bottom:14px;}
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mf label{display:block;font-size:10px;color:var(--text2);margin-bottom:4px;}
+.mf input,.mf select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:6px 9px;font-size:12px;color:var(--text);outline:none;font-family:inherit;}
+.mf input:focus,.mf select:focus{border-color:var(--accent);}
+.mf.full{grid-column:1/-1;}
+.mdiv{grid-column:1/-1;border:none;border-top:1px solid var(--border);margin:4px 0;}
+.ma{display:flex;gap:7px;justify-content:flex-end;margin-top:14px;}
 </style>
 </head>
 <body>
-<div class="app">
 
-<div class="header">
-  <div>
-    <h1>Alocação de Ativos</h1>
-    <p>B3 · LSE · NYSE · NASDAQ — cotações em tempo real</p>
-  </div>
-  <div class="hright">
-    <div class="tok">
-      <label>brapi <span style="color:var(--text3)">(B3)</span></label>
-      <div id="dot-brapi" class="dot"></div>
-      <input type="text" id="brapi-token" placeholder="token brapi.dev..." oninput="salvarTokens()"/>
+<aside class="sb">
+  <div class="sb-logo"><h1>Portfólio</h1><p>Gestão de alocação de ativos</p></div>
+  <div class="sb-sec">Clientes</div>
+  <div class="cli-list" id="cli-list"></div>
+  <div class="sb-bot"><button class="btn-add-cli" onclick="openCliMod()">+ Adicionar cliente</button></div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="tb-l"><h2 id="tb-t">Selecione um cliente</h2><p id="tb-s">—</p></div>
+    <div class="tb-r">
+      <div class="pill"><label>Aporte R$</label><input type="number" id="aporte" value="15000" oninput="re()"/></div>
+      <div class="pill"><label>USD/BRL</label><input type="number" class="sm" id="dolar" value="5.80" step="0.01" oninput="re()"/></div>
+      <button class="btn btn-g" onclick="document.getElementById('m-cfg').style.display='flex'">⚙ Tokens</button>
+      <button class="btn btn-g" id="btn-cot" onclick="buscarCotacoes()"><span id="fi-cot">↻</span> Cotações</button>
+      <button class="btn btn-p btn-sm" id="btn-at" style="display:none" onclick="openAtivoMod()">+ Ativo</button>
     </div>
-    <div class="tok">
-      <label>Finnhub <span style="color:var(--text3)">(LSE/US)</span></label>
-      <div id="dot-finnhub" class="dot"></div>
-      <input type="text" id="finnhub-token" placeholder="token finnhub.io..." oninput="salvarTokens()"/>
-    </div>
-    <button class="btn-fetch" id="btn-fetch" onclick="buscarCotacoes()">
-      <span id="fi">↻</span> Atualizar cotações
-    </button>
   </div>
-</div>
-
-<div id="alerta" class="alert-i">
-  <strong>B3:</strong> token gratuito em <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--teal);text-decoration:underline">brapi.dev/dashboard</a> &nbsp;|&nbsp;
-  <strong>LSE / NYSE / NASDAQ:</strong> token gratuito em <a href="https://finnhub.io/register" target="_blank" style="color:var(--teal);text-decoration:underline">finnhub.io/register</a> (60 req/min grátis, sem cartão)
-</div>
-
-<div class="tabs">
-  <div class="tab active" onclick="switchTab('dashboard')">Dashboard</div>
-  <div class="tab" onclick="switchTab('ativos')">Carteira</div>
-  <div class="tab" onclick="switchTab('aportes')">Aportes do Mês</div>
-</div>
-
-<!-- DASHBOARD -->
-<div id="tab-dashboard" class="tc active">
-  <div class="sg" id="dash-cards"></div>
-  <div class="chg">
-    <div class="chc"><h3>Alocação atual vs planejada</h3><div style="position:relative;height:255px;"><canvas id="ch-bar"></canvas></div></div>
-    <div class="chc"><h3>Distribuição por classe</h3><div id="pie-leg" style="display:flex;flex-wrap:wrap;gap:6px 14px;margin-bottom:10px;"></div><div style="position:relative;height:215px;"><canvas id="ch-pie"></canvas></div></div>
-  </div>
-  <div class="tw">
-    <div class="th2"><h3>Visão geral</h3></div>
-    <div class="tscroll">
-      <table class="tbl"><thead><tr>
-        <th>Ticker</th><th>Bolsa</th><th>Classe</th><th>Cotação</th><th>Moeda</th><th>Var. dia</th><th>Cotas</th><th>Valor (R$)</th><th>% Plan.</th><th>% Atual</th><th>Gap R$</th>
-      </tr></thead><tbody id="dash-tbody"></tbody></table>
+  <div class="content" id="content">
+    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;text-align:center;">
+      <div style="font-size:32px;opacity:.1">◎</div>
+      <div style="font-size:13px;color:var(--text2);">Nenhum cliente selecionado</div>
+      <div style="font-size:11px;color:var(--text3);">Adicione um cliente na barra lateral</div>
     </div>
   </div>
 </div>
 
-<!-- CARTEIRA -->
-<div id="tab-ativos" class="tc">
-  <div class="cg">
-    <div class="cc">
-      <h3>Parâmetros globais</h3>
-      <div class="field"><label>Patrimônio total (R$)</label><div class="px"><span>R$</span><input type="number" id="patrimonio" value="3300000" oninput="recalcular()"></div></div>
-      <div class="field"><label>Aporte mensal (R$)</label><div class="px"><span>R$</span><input type="number" id="aporte-mensal" value="1500000" oninput="recalcular()"></div></div>
-      <div class="field"><label>USD/BRL</label><div class="px"><span>R$</span><input type="number" id="dolar" value="5.22" step="0.01" oninput="recalcular()"></div></div>
-      <div class="field"><label>GBP/BRL</label><div class="px"><span>R$</span><input type="number" id="libra" value="6.60" step="0.01" oninput="recalcular()"></div></div>
-      <div class="field"><label>EUR/BRL</label><div class="px"><span>R$</span><input type="number" id="euro" value="5.70" step="0.01" oninput="recalcular()"></div></div>
+<!-- MODAL CLIENTE -->
+<div class="modal-bg" id="m-cli" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>Novo cliente</h3>
+    <div class="mf"><label>Nome completo</label><input type="text" id="cli-n" placeholder="Ex: Alexandre Burigo" onkeydown="if(event.key==='Enter')saveCli()"/></div>
+    <div class="ma">
+      <button class="btn" onclick="document.getElementById('m-cli').style.display='none'">Cancelar</button>
+      <button class="btn btn-p" onclick="saveCli()">Adicionar</button>
     </div>
-    <div class="cc">
-      <h3>Bolsas suportadas</h3>
-      <div class="bolsas-info">
-        <div class="bi"><div class="name"><span class="exch-badge ex-b3">B3</span></div><div class="detail">Brasil · BRL<br>via brapi.dev (token)</div></div>
-        <div class="bi"><div class="name"><span class="exch-badge ex-lse">LSE</span></div><div class="detail">Londres · GBP/USD<br>via Yahoo Finance</div></div>
-        <div class="bi"><div class="name"><span class="exch-badge ex-us">NYSE</span></div><div class="detail">Nova York · USD<br>via Yahoo Finance</div></div>
-        <div class="bi"><div class="name"><span class="exch-badge ex-us">NASDAQ</span></div><div class="detail">Nova York · USD<br>via Yahoo Finance</div></div>
-        <div class="bi"><div class="name"><span class="exch-badge ex-eu">XETRA</span></div><div class="detail">Frankfurt · EUR<br>via Yahoo Finance</div></div>
-        <div class="bi"><div class="name"><span class="exch-badge ex-manual">Manual</span></div><div class="detail">Qualquer ativo<br>cotação manual</div></div>
+  </div>
+</div>
+
+<!-- MODAL ATIVO -->
+<div class="modal-bg" id="m-at" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 id="m-at-t">Novo ativo</h3>
+    <div class="mg">
+      <div class="mf"><label>Ticker / Nome</label><input type="text" id="a-tk" placeholder="Ex: IMAB11" style="text-transform:uppercase"/></div>
+      <div class="mf"><label>Moeda de negociação</label>
+        <select id="a-mo"><option>BRL</option><option>USD</option><option>EUR</option><option>GBP</option></select>
       </div>
-      <div class="conv-note">* LSE: ETFs em USD são convertidos pelo USD/BRL. ETFs cotados em GBp (pence) são divididos por 100 → GBP → BRL.</div>
-    </div>
-  </div>
-
-  <div class="tw">
-    <div class="th2">
-      <h3>Carteira de ativos</h3>
-      <div style="display:flex;gap:8px;">
-        <button class="btn-fetch btn-sm" onclick="buscarCotacoes()"><span id="fi2">↻</span> Cotações</button>
-        <button class="btn btn-p btn-sm" onclick="addAtivo()">+ Adicionar</button>
+      <div class="mf"><label>Classe</label>
+        <select id="a-cl">
+          <option>Renda Fixa</option><option>Renda Variável</option>
+          <option>Fundos Imobiliários</option><option>Commodities</option>
+          <option>Multimercados</option><option>Alternativos</option>
+        </select>
+      </div>
+      <div class="mf"><label>Sub-Classe</label>
+        <select id="a-sc">
+          <option>Títulos Públicos</option><option>Crédito Privado</option>
+          <option>Ações Globais</option><option>Ações Brasil</option>
+          <option>Fundos Imobiliários</option><option>Ouro</option>
+          <option>Bitcoin</option><option>Cesta de Criptomoedas</option>
+          <option>Multimercados</option>
+        </select>
+      </div>
+      <div class="mf"><label>Bolsa</label>
+        <select id="a-bo"><option>B3</option><option>LSE</option><option>NYSE</option><option>NASDAQ</option><option>XETRA</option></select>
+      </div>
+      <div class="mf"><label>% Alocação planejada</label>
+        <input type="number" id="a-pp" placeholder="0.0" min="0" max="100" step="0.5"/>
       </div>
     </div>
-    <div class="tscroll">
-      <table class="tbl"><thead><tr>
-        <th>Ticker</th><th>Bolsa</th><th>Classe</th><th>Estrat.</th><th>% Plan.</th>
-        <th>Cotação orig.</th><th>Moeda</th><th>Cotação R$</th><th>Cotas</th><th>Valor R$</th><th>% Atual</th><th>Gap</th><th></th>
-      </tr></thead><tbody id="cart-tbody"></tbody></table>
+    <div class="ma">
+      <button class="btn" onclick="document.getElementById('m-at').style.display='none'">Cancelar</button>
+      <button class="btn btn-p" onclick="saveAtivo()">Salvar</button>
     </div>
-    <div class="pct-bar" id="pct-bar"></div>
-    <div class="add-rw"><button class="btn btn-g btn-sm" onclick="addAtivo()">+ Nova linha</button></div>
   </div>
 </div>
 
-<!-- APORTES -->
-<div id="tab-aportes" class="tc">
-  <div class="sg" id="aporte-cards"></div>
-  <div class="legend">
-    <div class="li"><div class="ld" style="background:var(--red)"></div> Alta prioridade (&gt;5pp abaixo do alvo)</div>
-    <div class="li"><div class="ld" style="background:var(--amber)"></div> Média prioridade (2–5pp)</div>
-    <div class="li"><div class="ld" style="background:var(--accent)"></div> Baixa (até 2pp)</div>
-  </div>
-  <div class="ar">
-    <div class="ah">
-      <h3>Direcionamento do aporte</h3>
-      <div class="at-wrap">
-        <div class="at-i">Total R$: <strong id="tot-rs" style="color:var(--green)">R$ 0</strong></div>
-        <div class="at-i">Cotas estimadas: <strong id="tot-cotas" style="color:var(--teal)">0</strong></div>
-      </div>
+<!-- MODAL CONFIG TOKENS -->
+<div class="modal-bg" id="m-cfg" style="display:none">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3>⚙ Configurar tokens de API</h3>
+    <div style="margin-bottom:16px;font-size:12px;color:var(--text2);line-height:1.6">
+      Os tokens ficam salvos no seu navegador — você só precisa configurar uma vez.
     </div>
-    <div class="ahr">
-      <span>Ativo / Bolsa</span><span>Aporte R$</span><span>Cotas</span><span>% atual</span><span>Gap pp</span><span>Cotação R$</span><span>Barra</span>
+
+    <div class="mf" style="margin-bottom:14px">
+      <label style="font-size:11px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:6px">
+        <span>Token brapi.dev <span style="color:var(--text3)">(ETFs da B3)</span></span>
+        <a href="https://brapi.dev/dashboard" target="_blank" style="color:var(--teal);font-size:10px">Obter token →</a>
+      </label>
+      <input type="text" id="tok-brapi"
+        placeholder="Cole aqui o token completo do brapi.dev"
+        style="width:100%;font-family:monospace;font-size:12px;letter-spacing:0.05em"
+        oninput="saveToks()"/>
+      <div id="brapi-status" style="font-size:10px;margin-top:4px;color:var(--text3)"></div>
     </div>
-    <div id="aporte-rows"></div>
+
+    <div class="mf" style="margin-bottom:6px">
+      <label style="font-size:11px;color:var(--text2);display:flex;justify-content:space-between;margin-bottom:6px">
+        <span>Token Finnhub <span style="color:var(--text3)">(NYSE / NASDAQ)</span></span>
+        <a href="https://finnhub.io/dashboard" target="_blank" style="color:var(--teal);font-size:10px">Obter token →</a>
+      </label>
+      <input type="text" id="tok-finn"
+        placeholder="Cole aqui o token completo do finnhub.io"
+        style="width:100%;font-family:monospace;font-size:12px;letter-spacing:0.05em"
+        oninput="saveToks()"/>
+      <div id="finn-status" style="font-size:10px;margin-top:4px;color:var(--text3)"></div>
+    </div>
+
+    <div style="font-size:10px;color:var(--text3);margin-top:12px;padding:8px;background:var(--bg3);border-radius:6px;line-height:1.6">
+      ℹ ETFs da LSE (VWRA, IWQU, etc.) são buscados via Yahoo Finance — sem token necessário.
+    </div>
+
+    <div class="ma">
+      <button class="btn btn-p" onclick="document.getElementById('m-cfg').style.display='none'">Fechar</button>
+    </div>
   </div>
 </div>
-
-</div><!-- .app -->
 
 <script>
-// ─────────────────────────────────────────────
-// CONFIGURAÇÃO DE BOLSAS
-// ─────────────────────────────────────────────
-const BOLSAS = {
-  B3:     { label:'B3',     suffix:'.SA', moeda:'BRL', cls:'ex-b3',  fonte:'brapi' },
-  LSE:    { label:'LSE',    suffix:'.L',  moeda:'GBP', cls:'ex-lse', fonte:'yahoo' },
-  NYSE:   { label:'NYSE',   suffix:'',    moeda:'USD', cls:'ex-us',  fonte:'yahoo' },
-  NASDAQ: { label:'NASDAQ', suffix:'',    moeda:'USD', cls:'ex-us',  fonte:'yahoo' },
-  XETRA:  { label:'XETRA',  suffix:'.DE', moeda:'EUR', cls:'ex-eu',  fonte:'yahoo' },
-  MANUAL: { label:'Manual', suffix:'',    moeda:'BRL', cls:'ex-manual', fonte:'manual' },
-};
+const COLORS=['#6c63ff','#34d399','#fbbf24','#f87171','#22d3ee','#f472b6','#a78bfa','#4ade80','#fb923c','#60a5fa','#e879f9','#2dd4bf'];
+let DB={},CID=null,EI=null,ch1=null,ch2=null,ch3=null;
+let varMap={}, busyFetch=false;
+const fmt=(v,d=0)=>(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fp=v=>(v||0).toFixed(1)+'%';
 
-const CLASSES=['Renda Fixa Brasil','Renda Fixa Exterior','Renda Variável Brasil','Renda Variável Exterior','Multimercado'];
-const ESTRAT=['Núcleo','Satélite'];
-const MOEDA_CURR = { BRL:'curr-brl', USD:'curr-usd', GBP:'curr-gbp', EUR:'curr-eur' };
+function classBadge(cl){
+  const m={'Renda Fixa':'b-rf','Renda Variável':'b-rv','Fundos Imobiliários':'b-fi','Commodities':'b-cm','Multimercados':'b-mm','Alternativos':'b-al'};
+  return`<span class="badge ${m[cl]||'b-al'}">${cl}</span>`;
+}
 
-let ativos = [
-  {ticker:'VWRA',   bolsa:'LSE',    classe:'Renda Variável Exterior', estrategia:'Núcleo',   pct_plan:10, cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'IWQU',   bolsa:'LSE',    classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'IWVL',   bolsa:'LSE',    classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'AVGS',   bolsa:'LSE',    classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'EMVL',   bolsa:'LSE',    classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'DIVO11', bolsa:'B3',     classe:'Renda Variável Brasil',   estrategia:'Satélite', pct_plan:8,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'QLBR11', bolsa:'B3',     classe:'Renda Variável Brasil',   estrategia:'Satélite', pct_plan:4,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'LFTB11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:8,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'LFIN11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:4,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'GICP11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'DEBB11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'Valora Guadian', bolsa:'MANUAL', classe:'Renda Fixa Brasil', estrategia:'Satélite', pct_plan:4, cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'B5P211', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:12, cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'IMAB11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:6,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'KNCA11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'KDIF11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'IFRA11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'JURO11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'IDKA11', bolsa:'B3',     classe:'Renda Fixa Brasil',       estrategia:'Satélite', pct_plan:8,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'Az Quest Supra', bolsa:'MANUAL', classe:'Multimercado',   estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'Kapitallo Zeta', bolsa:'MANUAL', classe:'Multimercado',   estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'GOLD11', bolsa:'B3',     classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:3,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-  {ticker:'HASH11', bolsa:'B3',     classe:'Renda Variável Exterior', estrategia:'Satélite', pct_plan:2,  cotas:0, cotacao_orig:0, cotacao_brl:0},
-];
-
-let varMap = {};       // ticker -> {var_pct, var_abs}
-let lastUpdate = null;
-let barCh=null, pieCh=null, busy=false;
-
-// ─────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  const tb = localStorage.getItem('brapi_token') || '';
-  const tf = localStorage.getItem('finnhub_token') || '';
-  document.getElementById('brapi-token').value = tb;
-  document.getElementById('finnhub-token').value = tf;
-  updDots(tb, tf);
-  const saved = localStorage.getItem('carteira_v3');
-  if(saved){
-    try{
-      const c = JSON.parse(saved);
-      ativos.forEach(a => {
-        if(c[a.ticker]){
-          a.cotas = c[a.ticker].cotas || 0;
-          a.cotacao_orig = c[a.ticker].cotacao_orig || 0;
-          a.cotacao_brl  = c[a.ticker].cotacao_brl || 0;
-        }
-      });
-    }catch(e){}
-  }
-  document.getElementById('alerta').style.display = (tb && tf) ? 'none' : 'block';
-  recalcular();
+window.addEventListener('DOMContentLoaded',()=>{
+  // Carregar tokens salvos
+  const tb=localStorage.getItem('tok_brapi')||'';
+  const tf=localStorage.getItem('tok_finn')||'';
+  document.getElementById('tok-brapi').value=tb;
+  document.getElementById('tok-finn').value=tf;
+  saveToks();
+  // Carregar carteira salva
+  try{ DB=JSON.parse(localStorage.getItem('carteira_db')||'{}'); }catch(e){}
+  renderSB();
+  const ids=Object.keys(DB);
+  if(ids.length) sel(ids[0]);
 });
 
-function salvarTokens(){
-  const tb = document.getElementById('brapi-token').value.trim();
-  const tf = document.getElementById('finnhub-token').value.trim();
-  localStorage.setItem('brapi_token', tb);
-  localStorage.setItem('finnhub_token', tf);
-  updDots(tb, tf);
-  document.getElementById('alerta').style.display = (tb && tf) ? 'none' : 'block';
-}
-function updDots(tb, tf){
-  document.getElementById('dot-brapi').className    = 'dot ' + (tb ? 'ok' : 'err');
-  document.getElementById('dot-finnhub').className  = 'dot ' + (tf ? 'ok' : 'err');
-}
-
-function saveLocal(){
-  const obj = {};
-  ativos.forEach(a => { obj[a.ticker] = {cotas:a.cotas, cotacao_orig:a.cotacao_orig, cotacao_brl:a.cotacao_brl}; });
-  localStorage.setItem('carteira_v3', JSON.stringify(obj));
-}
-
-function getFX(){
-  return {
-    USD: parseFloat(document.getElementById('dolar').value) || 5.22,
-    GBP: parseFloat(document.getElementById('libra').value) || 6.60,
-    EUR: parseFloat(document.getElementById('euro').value) || 5.70,
-    BRL: 1,
-  };
-}
-function gp(){
-  return {
-    patrimonio: parseFloat(document.getElementById('patrimonio').value) || 0,
-    aporte:     parseFloat(document.getElementById('aporte-mensal').value) || 0,
-    ...getFX(),
-  };
+function saveToks(){
+  // Limpar token de caracteres extras que podem vir ao copiar
+  const tb=document.getElementById('tok-brapi').value.trim().replace(/[^a-zA-Z0-9_\-]/g,'');
+  const tf=document.getElementById('tok-finn').value.trim().replace(/[^a-zA-Z0-9_\-]/g,'');
+  // Atualizar campos com valor limpo
+  document.getElementById('tok-brapi').value=tb;
+  document.getElementById('tok-finn').value=tf;
+  localStorage.setItem('tok_brapi', tb);
+  localStorage.setItem('tok_finn',  tf);
+  const bs=document.getElementById('brapi-status');
+  const fs=document.getElementById('finn-status');
+  if(bs) bs.innerHTML = tb
+    ? `<span style="color:${tb.length>=20?'var(--green)':'var(--amber)'}">${tb.length>=20?'✓':'⚠'} ${tb.length} caracteres${tb.length<20?' — parece incompleto':''}</span>`
+    : '';
+  if(fs) fs.innerHTML = tf
+    ? `<span style="color:${tf.length>=15?'var(--green)':'var(--amber)'}">${tf.length>=15?'✓':'⚠'} ${tf.length} caracteres${tf.length<15?' — parece incompleto':''}</span>`
+    : '';
 }
 
-const fmt = (v,d=0) => v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
-const fp = v => v.toFixed(1)+'%';
-
-function classBadge(c){
-  return c.includes('Fixa') ? 'brf' : c.includes('Variável') ? 'brv' : 'bmm';
+function saveDB(){
+  localStorage.setItem('carteira_db',JSON.stringify(DB));
 }
 
-function getMoeda(bolsa){ return BOLSAS[bolsa]?.moeda || 'BRL'; }
+function openCliMod(){document.getElementById('m-cli').style.display='flex';setTimeout(()=>document.getElementById('cli-n').focus(),50);}
+function saveCli(){
+  const n=document.getElementById('cli-n').value.trim();if(!n)return;
+  const id='c'+Date.now();DB[id]={nome:n,ativos:[]};
+  document.getElementById('cli-n').value='';document.getElementById('m-cli').style.display='none';
+  saveDB();renderSB();sel(id);
+}
+function renderSB(){
+  document.getElementById('cli-list').innerHTML=Object.keys(DB).map(id=>{
+    const c=DB[id],ini=c.nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    return`<div class="cli ${id===CID?'active':''}" onclick="sel('${id}')"><div class="cli-av">${ini}</div><span>${c.nome}</span></div>`;
+  }).join('');
+}
+function sel(id){CID=id;renderSB();document.getElementById('tb-t').textContent=DB[id].nome;document.getElementById('btn-at').style.display='inline-flex';re();}
 
-// Converte cotação original para BRL
-function toBRL(cotacao_orig, bolsa, lsePence=false){
-  const fx = getFX();
-  const moeda = getMoeda(bolsa);
-  if(moeda === 'BRL') return cotacao_orig;
-  if(moeda === 'GBP'){
-    // LSE: algumas cotas são cotadas em pence (GBp) — dividir por 100 primeiro
-    const gbp = lsePence ? cotacao_orig / 100 : cotacao_orig;
-    return gbp * fx.GBP;
+function openAtivoMod(idx=null){
+  EI=idx;document.getElementById('m-at-t').textContent=idx===null?'Novo ativo':'Editar ativo';
+  if(idx!==null){
+    const a=DB[CID].ativos[idx];
+    document.getElementById('a-tk').value=a.tk;document.getElementById('a-mo').value=a.mo;
+    document.getElementById('a-cl').value=a.cl;document.getElementById('a-sc').value=a.sc;
+    document.getElementById('a-bo').value=a.bo;document.getElementById('a-pp').value=a.pp;
+  }else{
+    ['a-tk','a-pp'].forEach(x=>document.getElementById(x).value='');
+    document.getElementById('a-mo').value='BRL';document.getElementById('a-cl').value='Renda Variável';
+    document.getElementById('a-sc').value='Ações Globais';document.getElementById('a-bo').value='B3';
   }
-  return cotacao_orig * (fx[moeda] || 1);
+  document.getElementById('m-at').style.display='flex';setTimeout(()=>document.getElementById('a-tk').focus(),50);
+}
+function saveAtivo(){
+  try {
+    if(!CID){ alert('Selecione um cliente primeiro!'); return; }
+    const tk = document.getElementById('a-tk').value.trim().toUpperCase();
+    if(!tk){ alert('Informe o ticker do ativo!'); return; }
+    const a = {
+      tk,
+      mo:      document.getElementById('a-mo').value,
+      cl:      document.getElementById('a-cl').value,
+      sc:      document.getElementById('a-sc').value,
+      bo:      document.getElementById('a-bo').value,
+      pp:      parseFloat(document.getElementById('a-pp').value)||0,
+      cotacao: EI!==null ? (DB[CID].ativos[EI].cotacao||0) : 0,
+      cotas:   EI!==null ? (DB[CID].ativos[EI].cotas||0)   : 0,
+    };
+    if(EI!==null) DB[CID].ativos[EI] = a;
+    else DB[CID].ativos.push(a);
+    document.getElementById('m-at').style.display='none';
+    EI = null;
+    saveDB();
+    re();
+  } catch(err) {
+    alert('Erro ao salvar: ' + err.message);
+  }
+}
+function delA(i){if(!confirm('Remover?'))return;DB[CID].ativos.splice(i,1);saveDB();re();}
+function updCotas(i,val){ DB[CID].ativos[i].cotas=parseFloat(val)||0; saveDB(); re(); }
+function updCotacao(i,val){ DB[CID].ativos[i].cotacao=parseFloat(val)||0; saveDB(); re(); }
+
+function getD(){return parseFloat(document.getElementById('dolar').value)||5.80;}
+function getA(){return parseFloat(document.getElementById('aporte').value)||0;}
+
+// Valor em BRL: cotacao (na moeda nativa) × cotas × fx se necessário
+function posEmBRL(a){
+  const cot = a.cotacao||0;
+  const qt  = a.cotas||0;
+  if(!cot||!qt) return 0;
+  return a.mo==='BRL' ? cot*qt : cot*qt*getD();
 }
 
-// ─────────────────────────────────────────────
-// FETCH COTAÇÕES
-// ─────────────────────────────────────────────
-// Mapeamento ticker → símbolo Finnhub (LSE usa "VWRA:LSE", US sem sufixo, XETRA "SAP:XETRA")
-function toFinnhubSymbol(ativo){
-  const map = {
-    LSE:    tk => `${tk}:LSE`,
-    NYSE:   tk => tk,
-    NASDAQ: tk => tk,
-    XETRA:  tk => `${tk}:XETRA`,
-  };
-  return map[ativo.bolsa]?.(ativo.ticker) || null;
-}
-
-async function buscarCotacoes(){
-  if(busy) return;
-  busy = true;
-  const btn = document.getElementById('btn-fetch');
-  btn.disabled = true;
-  ['fi','fi2'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.innerHTML = '<span class="spin">↻</span>';
-  });
-
-  const tokenBrapi   = document.getElementById('brapi-token').value.trim();
-  const tokenFinnhub = document.getElementById('finnhub-token').value.trim();
-
-  const b3group    = ativos.filter(a => BOLSAS[a.bolsa]?.fonte === 'brapi');
-  const intlGroup  = ativos.filter(a => BOLSAS[a.bolsa]?.fonte === 'yahoo');
-
-  // ── brapi.dev → B3 (BRL nativo, sem conversão) ──
-  if(tokenBrapi && b3group.length){
-    const tickers = b3group.map(a => a.ticker).filter(t => /\w/.test(t));
-    for(const chunk of chunks(tickers, 10)){
-      try{
-        const url = `https://brapi.dev/api/quote/${chunk.join(',')}?token=${tokenBrapi}`;
-        const r = await fetch(url, {method:'GET', mode:'cors'});
-        if(!r.ok){ console.warn(`brapi HTTP ${r.status}`); continue; }
-        const d = await r.json();
-        (d.results || []).forEach(q => {
-          const a = ativos.find(x => x.ticker === q.symbol);
-          if(a){
-            a.cotacao_orig = q.regularMarketPrice;
-            a.cotacao_brl  = q.regularMarketPrice;
-            varMap[a.ticker] = {var_pct: q.regularMarketChangePercent||0, var_abs: q.regularMarketChange||0, curr:'BRL'};
-          }
-        });
-      }catch(e){ console.warn('brapi err:', e.message || e); }
-    }
-  }
-
-  // ── Finnhub → LSE / NYSE / NASDAQ / XETRA (CORS nativo, sem proxy!) ──
-  if(tokenFinnhub && intlGroup.length){
-    await Promise.all(intlGroup.map(a => fetchFinnhub(a, tokenFinnhub)));
-  } else if(!tokenFinnhub && intlGroup.length){
-    console.warn('Token Finnhub não configurado. Cadastre em finnhub.io/register (plano grátis).');
-  }
-
-  lastUpdate = new Date();
-  saveLocal();
-  recalcular();
-
-  busy = false;
-  btn.disabled = false;
-  ['fi','fi2'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.innerHTML = '↻';
+function calc(){
+  const ativos=DB[CID]?.ativos||[];
+  const tot=ativos.reduce((s,a)=>s+posEmBRL(a),0);
+  const d=getD();
+  return ativos.map(a=>{
+    const v=posEmBRL(a),pp=a.pp/100,pa=tot>0?v/tot:0,des=tot*pp;
+    return{...a,v,pp,pa,des_brl:des,des_usd:des/d,gap:des-v,gpp:(pa-pp)*100,tot};
   });
 }
+function calcAp(dados){
+  const ap=getA(), d=getD(), tot=dados[0]?.tot||0, fut=tot+ap;
 
-async function fetchFinnhub(ativo, token){
-  const sym = toFinnhubSymbol(ativo);
-  if(!sym) return;
-  try{
-    const url = `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${token}`;
-    // Timeout manual via Promise.race (AbortSignal.timeout não pode ser clonado em Promise.all)
-    const timeout = new Promise((_,rej) => setTimeout(() => rej(new Error('timeout')), 8000));
-    const r = await Promise.race([fetch(url), timeout]);
-    if(!r.ok){ console.warn(`Finnhub ${r.status} para ${sym}`); return; }
-    const d = await r.json();
-    if(!d.c || d.c === 0){ console.warn(`Finnhub: preço zero para ${sym}`); return; }
-
-    const fx  = getFX();
-    const brl = d.c * (fx.USD || 5.22);
-
-    ativo.cotacao_orig = d.c;
-    ativo.cotacao_brl  = brl;
-    varMap[ativo.ticker] = { var_pct: d.dp || 0, var_abs: d.d || 0, curr: 'USD' };
-  }catch(e){
-    console.warn(`Finnhub err ${sym}:`, e.message || e);
-  }
-}
-
-function chunks(arr, n){
-  const r = [];
-  for(let i = 0; i < arr.length; i += n) r.push(arr.slice(i, i+n));
-  return r;
-}
-
-// ─────────────────────────────────────────────
-// CÁLCULOS
-// ─────────────────────────────────────────────
-function valAtual(a){ return a.cotacao_brl > 0 && a.cotas > 0 ? a.cotacao_brl * a.cotas : 0; }
-
-function calcular(){
-  const { patrimonio } = gp();
-  const totalAtual = ativos.reduce((s,a) => s + valAtual(a), 0);
-  return ativos.map(a => {
-    const val = valAtual(a);
-    const pp  = a.pct_plan / 100;
-    const pa  = totalAtual > 0 ? val / totalAtual : 0;
-    const vd  = patrimonio * pp;
-    return { ...a, val, pp, pa, vd, gap: vd - val, gpp: (pa - pp) * 100, totalAtual };
+  // 1. Posição ideal de cada ativo APÓS o aporte
+  //    ideal_i = patrimônio_futuro × %_planejada_i
+  // 2. Necessidade de cada ativo = max(0, ideal_i - posição_atual_i)
+  //    → só aporta em quem está abaixo, nunca em quem está acima
+  const necessidades = dados.map(a => {
+    const ideal = fut * a.pp;           // quanto deveria ter após aporte
+    const falta = Math.max(0, ideal - a.v); // quanto falta (0 se já está acima)
+    return { ...a, ideal, falta };
   });
-}
 
-function calcAportes(dados){
-  const { patrimonio, aporte } = gp();
-  const pf = patrimonio + aporte;
-  const nec = dados.map(a => ({ ...a, falta: pf * a.pp - a.val }));
-  const ord = [...nec].sort((a,b) => a.gpp - b.gpp);
-  let saldo = aporte;
+  // 3. Soma total das necessidades
+  const totalNec = necessidades.reduce((s,a) => s + a.falta, 0);
+
   const aloc = {};
-  nec.forEach(a => aloc[a.ticker] = 0);
-  for(const a of ord){
-    if(saldo <= 0) break;
-    if(a.falta > 0){ const v = Math.min(a.falta, saldo); aloc[a.ticker] = v; saldo -= v; }
+  if(totalNec <= 0){
+    // Todos já estão no alvo ou acima → distribui proporcionalmente ao peso planejado
+    const tp = necessidades.reduce((s,a) => s+a.pp, 0);
+    necessidades.forEach(a => aloc[a.tk] = tp>0 ? ap*(a.pp/tp) : 0);
+  } else if(totalNec <= ap){
+    // Aporte é maior ou igual à necessidade total → 
+    // cada um recebe exatamente o que falta para atingir o alvo
+    // e o excedente é distribuído proporcionalmente
+    const sobra = ap - totalNec;
+    const tp = necessidades.reduce((s,a) => s+a.pp, 0);
+    necessidades.forEach(a => {
+      aloc[a.tk] = a.falta + (tp>0 ? sobra*(a.pp/tp) : 0);
+    });
+  } else {
+    // Aporte é MENOR que a necessidade total →
+    // distribui PROPORCIONALMENTE ao déficit de cada ativo
+    // Isso evita concentrar tudo num ativo só
+    necessidades.forEach(a => {
+      aloc[a.tk] = a.falta > 0 ? ap * (a.falta / totalNec) : 0;
+    });
   }
-  if(saldo > 0){
-    const tp = nec.reduce((s,a) => s + a.pp, 0);
-    nec.forEach(a => { if(tp > 0) aloc[a.ticker] += saldo * (a.pp / tp); });
-  }
-  return nec.map(a => ({
+
+  return necessidades.map(a => ({
     ...a,
-    alocacao: aloc[a.ticker] || 0,
-    cotas_c:  a.cotacao_brl > 0 ? Math.floor((aloc[a.ticker] || 0) / a.cotacao_brl) : 0,
+    al:     aloc[a.tk] || 0,
+    al_usd: (aloc[a.tk] || 0) / d,
+    // % do aporte que vai para este ativo
+    al_pct: ap > 0 ? (aloc[a.tk]||0) / ap * 100 : 0,
+    // posição simulada após aporte
+    pos_after: a.v + (aloc[a.tk]||0),
+    pos_after_pct: fut > 0 ? (a.v + (aloc[a.tk]||0)) / fut * 100 : 0,
   }));
 }
 
-// ─────────────────────────────────────────────
-// RENDER
-// ─────────────────────────────────────────────
-function recalcular(){
-  const dados = calcular();
-  renderCart(dados);
-  renderDash(dados);
-  const tab = document.querySelector('.tab.active')?.getAttribute('onclick')?.match(/'(\w+)'/)?.[1];
-  if(tab === 'aportes') renderAportes(dados);
-}
+function re(){
+  if(!CID)return;
+  const c=DB[CID],dados=calc(),com=calcAp(dados),d=getD(),ap=getA(),tot=dados[0]?.tot||0;
+  document.getElementById('tb-s').textContent=`${c.ativos.length} ativos · R$ ${fmt(tot)} · USD ${fmt(tot/d)}`;
 
-function exchBadge(bolsa){
-  const conf = BOLSAS[bolsa] || BOLSAS.MANUAL;
-  return `<span class="exch-badge ${conf.cls}">${conf.label}</span>`;
-}
+  if(!c.ativos.length){
+    document.getElementById('content').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;text-align:center"><div style="font-size:32px;opacity:.1">◎</div><div style="color:var(--text2)">Carteira vazia</div><button class="btn btn-p" style="margin-top:8px" onclick="openAtivoMod()">+ Adicionar ativo</button></div>`;
+    return;
+  }
 
-function moedaTag(bolsa, vr){
-  const curr = vr?.curr || getMoeda(bolsa);
-  const cls  = MOEDA_CURR[curr.toUpperCase()] || 'curr-brl';
-  return `<span class="curr ${cls}">${curr}</span>`;
-}
+  const tp=c.ativos.reduce((s,a)=>s+a.pp,0);
+  const tpC=Math.abs(tp-100)<0.1?'#34d399':tp>100?'#f87171':'#fbbf24';
+  const totAporte=com.reduce((s,a)=>s+a.al,0);
 
-function renderCart(dados){
-  const tp = ativos.reduce((s,a) => s + a.pct_plan, 0);
-  document.getElementById('cart-tbody').innerHTML = dados.map((a,i) => {
-    const gc  = a.gpp > 0.5 ? 'var(--green)' : a.gpp < -0.5 ? 'var(--red)' : 'var(--text3)';
-    const vr  = varMap[a.ticker];
-    const conf = BOLSAS[a.bolsa] || BOLSAS.MANUAL;
-    const isManual = conf.fonte === 'manual';
-
-    const cotOrigStr = a.cotacao_orig > 0
-      ? fmt(a.cotacao_orig, 2)
-      : isManual
-        ? `<input type="number" class="ci" value="${a.cotacao_brl||0}" step="0.01" style="width:84px" onchange="setManualCot(${i},this.value)"/>`
-        : '—';
-
-    const varStr = vr ? `<span class="${vr.var_pct>=0?'vp':'vn'}">${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(2)}%</span>` : '';
-    const brlStr = a.cotacao_brl > 0 ? `R$ ${fmt(a.cotacao_brl,2)}` : '<span style="color:var(--text3)">—</span>';
-
-    return `<tr>
-      <td><input class="ti" value="${a.ticker}" onchange="updA(${i},'ticker',this.value)"/></td>
-      <td>
-        <select onchange="updA(${i},'bolsa',this.value)">
-          ${Object.keys(BOLSAS).map(b=>`<option${b===a.bolsa?' selected':''}>${b}</option>`).join('')}
-        </select>
-      </td>
-      <td><select onchange="updA(${i},'classe',this.value)">${CLASSES.map(c=>`<option${c===a.classe?' selected':''}>${c}</option>`).join('')}</select></td>
-      <td><select onchange="updA(${i},'estrategia',this.value)">${ESTRAT.map(e=>`<option${e===a.estrategia?' selected':''}>${e}</option>`).join('')}</select></td>
-      <td><input type="number" class="pi" value="${a.pct_plan}" min="0" max="100" step="0.5" onchange="updA(${i},'pct_plan',parseFloat(this.value))"/></td>
-      <td style="text-align:right">${cotOrigStr}</td>
-      <td style="text-align:right">${moedaTag(a.bolsa, vr)}</td>
-      <td style="text-align:right">${brlStr} ${varStr}</td>
-      <td><input type="number" class="ci" value="${a.cotas}" min="0" step="1" onchange="updCotas(${i},this.value)"/></td>
-      <td>${a.val > 0 ? `R$ ${fmt(a.val,0)}` : '<span style="color:var(--text3)">—</span>'}</td>
-      <td style="color:${gc}">${fp(a.pa*100)}</td>
-      <td style="color:${gc}">${a.gpp>0?'+':''}${a.gpp.toFixed(1)}pp</td>
-      <td><button class="btn btn-d btn-sm" onclick="remA(${i})">✕</button></td>
-    </tr>`;
-  }).join('');
-
-  const pc = Math.abs(tp-100) < 0.1 ? 'pok' : tp > 100 ? 'perr' : 'pwarn';
-  const pb = document.getElementById('pct-bar');
-  pb.innerHTML = `<span style="color:var(--text2)">Total planejado:</span> <span class="pct-v ${pc}">${tp.toFixed(1)}%</span> ${Math.abs(tp-100)<0.1?'✓':tp>100?'— excede 100%':`— faltam ${(100-tp).toFixed(1)}%`}`;
-  if(lastUpdate) pb.innerHTML += `<span style="margin-left:auto;color:var(--text3);font-size:.68rem">Atualizado ${lastUpdate.toLocaleTimeString('pt-BR')}</span>`;
-}
-
-function renderDash(dados){
-  const { patrimonio, aporte, USD } = gp();
-  const totalAtual = dados[0]?.totalAtual || 0;
-  const comCot = ativos.filter(a => a.cotacao_brl > 0).length;
-
-  document.getElementById('dash-cards').innerHTML = `
-    <div class="sc"><div class="lbl">Patrimônio</div><div class="val va">R$ ${fmt(patrimonio)}</div><div class="sub">USD ${fmt(patrimonio/USD)}</div></div>
-    <div class="sc"><div class="lbl">Investido</div><div class="val vt">R$ ${fmt(totalAtual)}</div><div class="sub">${totalAtual>0?fp(totalAtual/patrimonio*100)+' do patrim.':'Informe cotas'}</div></div>
-    <div class="sc"><div class="lbl">Aporte mensal</div><div class="val vg">R$ ${fmt(aporte)}</div><div class="sub">USD ${fmt(aporte/USD)}</div></div>
-    <div class="sc"><div class="lbl">Cotações</div><div class="val" style="font-size:1.2rem;color:${comCot===ativos.length?'var(--green)':'var(--amber)'}">${comCot}/${ativos.length}</div><div class="sub">${comCot===ativos.length?'Completa':'Busque cotações'}</div></div>
-  `;
-
-  document.getElementById('dash-tbody').innerHTML = dados.map(a => {
-    const gc = a.gap < -100 ? 'var(--red)' : a.gap > 100 ? 'var(--green)' : 'var(--text3)';
-    const vr = varMap[a.ticker];
-    const varStr = vr ? `<span class="${vr.var_pct>=0?'vp':'vn'}">${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(2)}%</span>` : '—';
-    return `<tr>
-      <td style="font-family:var(--mono);font-weight:500">${a.ticker}</td>
-      <td>${exchBadge(a.bolsa)}</td>
-      <td><span class="badge ${classBadge(a.classe)}">${a.classe}</span></td>
-      <td>${a.cotacao_orig>0?fmt(a.cotacao_orig,2):'—'}</td>
-      <td>${moedaTag(a.bolsa, vr)}</td>
-      <td>${varStr}</td>
-      <td>${a.cotas>0?fmt(a.cotas,0):'—'}</td>
-      <td>R$ ${fmt(a.val)}</td>
-      <td>${fp(a.pct_plan)}</td>
-      <td>${fp(a.pa*100)}</td>
-      <td style="color:${gc}">R$ ${a.gap>=0?'+':''}${fmt(a.gap)}</td>
-    </tr>`;
-  }).join('');
-
-  renderCharts(dados);
-}
-
-function renderCharts(dados){
-  const labels   = dados.map(a => a.ticker);
-  const pd       = dados.map(a => a.pct_plan);
-  const ad       = dados.map(a => +(a.pa*100).toFixed(2));
-  if(barCh) barCh.destroy();
-  barCh = new Chart(document.getElementById('ch-bar'),{
-    type:'bar', data:{labels, datasets:[
-      {label:'Planejado', data:pd, backgroundColor:'rgba(124,106,245,.25)', borderColor:'#7c6af5', borderWidth:1},
-      {label:'Atual',     data:ad, backgroundColor:'rgba(62,207,142,.25)',  borderColor:'#3ecf8e', borderWidth:1},
-    ]},
-    options:{responsive:true, maintainAspectRatio:false, plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{color:'#5e5d6e',font:{size:8},maxRotation:45}, grid:{color:'rgba(255,255,255,.04)'}},
-        y:{ticks:{color:'#5e5d6e',font:{size:9},callback:v=>v+'%'}, grid:{color:'rgba(255,255,255,.04)'}},
-      }
-    }
-  });
-
-  const cm = {};
-  dados.forEach(a => { cm[a.classe] = (cm[a.classe]||0) + a.val; });
-  const total = Object.values(cm).reduce((s,v)=>s+v,0) || 1;
-  const cl    = Object.keys(cm);
-  const cd    = Object.values(cm);
-  const colors = ['#3ecf8e','#7c6af5','#f5a623','#38bdf8','#e85d5d'];
-  document.getElementById('pie-leg').innerHTML = cl.map((l,i)=>`
-    <div style="display:flex;align-items:center;gap:4px;font-size:.65rem;color:var(--text2)">
-      <div style="width:8px;height:8px;border-radius:2px;background:${colors[i%colors.length]}"></div>
-      ${l} <span style="color:var(--text3)">(${((cd[i]/total)*100).toFixed(0)}%)</span>
-    </div>`).join('');
-  if(pieCh) pieCh.destroy();
-  pieCh = new Chart(document.getElementById('ch-pie'),{
-    type:'doughnut',
-    data:{labels:cl, datasets:[{data:cd, backgroundColor:colors, borderColor:'#16161c', borderWidth:2}]},
-    options:{responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{legend:{display:false}}}
-  });
-}
-
-function renderAportes(dados){
-  if(!dados) dados = calcular();
-  const com   = calcAportes(dados);
-  const { aporte } = gp();
-  const totRs = com.reduce((s,a) => s + a.alocacao, 0);
-  const totCt = com.reduce((s,a) => s + (a.cotas_c||0), 0);
-  document.getElementById('tot-rs').textContent    = 'R$ ' + fmt(totRs);
-  document.getElementById('tot-cotas').textContent = fmt(totCt,0) + ' cotas';
-
-  document.getElementById('aporte-cards').innerHTML = `
-    <div class="sc"><div class="lbl">Aporte</div><div class="val vg">R$ ${fmt(aporte)}</div></div>
-    <div class="sc"><div class="lbl">Beneficiados</div><div class="val vt">${com.filter(a=>a.alocacao>1).length}<span style="font-size:.85rem;color:var(--text2)">/${ativos.length}</span></div></div>
-    <div class="sc"><div class="lbl">Maior aporte</div><div class="val va" style="font-size:1rem">R$ ${fmt(Math.max(...com.map(a=>a.alocacao)))}</div></div>
-    <div class="sc"><div class="lbl">Mais defasado</div><div class="val" style="font-size:1rem;font-family:var(--mono)">${[...com].sort((a,b)=>a.gpp-b.gpp)[0]?.ticker||'-'}</div></div>
-  `;
-
-  const sorted = [...com].sort((a,b) => b.alocacao - a.alocacao || a.gpp - b.gpp);
-  document.getElementById('aporte-rows').innerHTML = sorted.map(a => {
-    const has  = a.alocacao > 0.5;
-    const ga   = Math.abs(a.gpp);
-    const pr   = has ? (ga>5?1:ga>2?2:3) : 0;
-    const bw   = Math.min(110, (a.pa / (a.pp>0?a.pp:.001)) * 100);
-    const over = bw > 100;
-    const gcl  = a.gpp < -0.5 ? 'gn' : a.gpp > 0.5 ? 'gp' : 'gne';
-    const cotStr = a.cotacao_brl > 0
-      ? `R$ ${fmt(a.cotacao_brl,2)}`
-      : `<span style="color:var(--text3)">—</span>`;
-    return `<div class="ai p${pr}">
-      <div>
-        <div style="display:flex;align-items:center;gap:6px;">
-          <span class="tn">${a.ticker}</span>
-          ${exchBadge(a.bolsa)}
-        </div>
-        <div class="ct">${a.classe}</div>
+  document.getElementById('content').innerHTML=`
+  <div class="strip">
+    <div class="sc"><div class="lbl">Patrimônio</div><div class="val" style="color:var(--accent2)">R$ ${fmt(tot)}</div><div class="sub">USD ${fmt(tot/d)}</div></div>
+    <div class="sc"><div class="lbl">Aporte mensal</div><div class="val" style="color:var(--amber)">R$ ${fmt(ap)}</div><div class="sub">USD ${fmt(ap/d)}</div></div>
+    <div class="sc"><div class="lbl">Ativos</div><div class="val" style="color:var(--teal)">${c.ativos.length}</div><div class="sub">${c.ativos.filter(a=>a.pos>0).length} com posição</div></div>
+    <div class="sc"><div class="lbl">USD/BRL</div><div class="val" style="color:var(--green)">R$ ${fmt(d,2)}</div></div>
+    <div class="sc"><div class="lbl">% Planejado</div><div class="val" style="color:${tpC}">${fmt(tp,1)}%</div><div class="sub">${Math.abs(tp-100)<0.1?'✓ OK':tp>100?'Excede':'Faltam '+(100-tp).toFixed(1)+'%'}</div></div>
+  </div>
+  <div class="main-layout">
+    <div class="charts-col">
+      <div class="cc"><h4>Por Classe</h4><div id="l1" class="cleg"></div><div style="position:relative;height:140px"><canvas id="c1"></canvas></div></div>
+      <div class="cc"><h4>Por Sub-Classe</h4><div id="l2" class="cleg"></div><div style="position:relative;height:140px"><canvas id="c2"></canvas></div></div>
+      <div class="cc"><h4>Por Ativo</h4><div id="l3" class="cleg"></div><div style="position:relative;height:140px"><canvas id="c3"></canvas></div></div>
+    </div>
+    <div class="aw">
+    <div class="aw-h">
+      <h3>Ativos da carteira</h3>
+      <div class="aw-h-right">
+        <div class="li"><div class="ld" style="background:#f87171"></div>Alta (&gt;5pp)</div>
+        <div class="li"><div class="ld" style="background:#fbbf24"></div>Média (2–5pp)</div>
+        <div class="li"><div class="ld" style="background:#6c63ff"></div>Baixa (&lt;2pp)</div>
+        <span style="margin-left:4px">Aporte total: <b style="color:var(--green);font-family:monospace">R$ ${fmt(totAporte)}</b> / <b style="color:var(--teal);font-family:monospace">USD ${fmt(totAporte/d)}</b></span>
+        <button class="btn btn-p btn-sm" onclick="openAtivoMod()">+ Ativo</button>
       </div>
-      <div class="av ${has?'':'z'}">${has?'R$ '+fmt(a.alocacao):'—'}</div>
-      <div class="cv ${a.cotas_c>0?'':'z'}">${a.cotas_c>0?'+'+a.cotas_c:'—'}</div>
-      <div class="pc">${fp(a.pa*100)}<br><span style="color:var(--text3)">${a.pct_plan.toFixed(0)}% alvo</span></div>
-      <div class="gc ${gcl}">${a.gpp>0?'+':''}${a.gpp.toFixed(1)}pp</div>
-      <div class="gc">${cotStr}</div>
-      <div class="al-col"><div class="al-track"><div class="al-fill ${over?'al-over':''}" style="width:${Math.min(100,bw)}%"></div></div></div>
-    </div>`;
-  }).join('');
+    </div>
+    <div class="tbl-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th style="text-align:left" rowspan="2">Ativo</th>
+            <th colspan="4" class="th-group" style="border-left:1px solid var(--border);border-right:1px solid var(--border)">Posição Atual</th>
+            <th colspan="2" class="th-group" style="border-right:1px solid var(--border)">Posição Desejada</th>
+            <th rowspan="2">Aloc. Atual</th>
+            <th rowspan="2">Aloc. Plan.</th>
+            <th rowspan="2">Gap</th>
+            <th colspan="3" class="th-group" style="border-left:1px solid var(--border);border-right:1px solid var(--border)">Aporte sugerido</th>
+            <th rowspan="2"></th>
+          </tr>
+          <tr>
+            <th style="border-left:1px solid var(--border)">Cotação</th>
+            <th>Cotas</th>
+            <th>Valor R$</th>
+            <th style="border-right:1px solid var(--border)">Valor USD</th>
+            <th>R$</th>
+            <th style="border-right:1px solid var(--border)">USD</th>
+            <th style="border-left:1px solid var(--border)">R$</th>
+            <th>USD</th>
+            <th style="border-right:1px solid var(--border)">% do aporte</th>
+          </tr>
+        </thead>
+        <tbody id="a-rows"></tbody>
+      </table>
+    </div>
+    <div class="pct-foot">
+      <span style="color:var(--text2)">Total planejado:</span>
+      <span style="font-family:monospace;font-weight:600;color:${tpC}">${fmt(tp,1)}%</span>
+      ${Math.abs(tp-100)<0.1?'✓':tp>100?'— excede 100%':`— faltam ${fmt(100-tp,1)}%`}
+    </div>
+  </div>
+  </div>`;
+
+  // Renderiza linhas — ordenadas por gap (mais defasados primeiro)
+  const sorted=[...com].sort((a,b)=>a.gpp-b.gpp);
+  sorted.forEach((a,idx)=>{
+    const origIdx=DB[CID].ativos.findIndex(x=>x.tk===a.tk);
+    const has=a.al>0.5,ga=Math.abs(a.gpp),pr=has?(ga>5?1:ga>2?2:3):0;
+    const gc=a.gpp<-0.5?'gn':a.gpp>0.5?'gp':'gne';
+    const isBRL=a.mo==='BRL';
+    const cot=a.cotacao||0;
+    const qt=a.cotas||0;
+    const vr=varMap[a.tk];
+
+    // Cotação: se foi buscada via API mostra valor + variação; senão campo editável
+    const cotStr=cot>0
+      ?`<div style="font-family:monospace;font-size:12px;color:${isBRL?'var(--text)':'var(--teal)'}">${isBRL?'R$':'USD'} ${fmt(cot,2)}</div>${vr?`<div style="font-size:10px;color:${vr.var_pct>=0?'var(--green)':'var(--red)'}">${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(1)}%</div>`:'<div style="font-size:9px;color:var(--text3)">manual</div>'}`
+      :`<input class="pos-input ${isBRL?'':'pos-usd'}" type="number" value="${cot||''}" step="0.01" placeholder="0.00" onchange="updCotacao(${origIdx},this.value)" style="width:88px"/>`;
+
+    document.getElementById('a-rows').insertAdjacentHTML('beforeend',`
+      <tr class="${pr?'p'+pr:''}">
+        <td>
+          <div class="at-tk">${a.tk}</div>
+          <div class="at-info">${a.sc} · ${a.bo}</div>
+          <div class="at-bdg">${classBadge(a.cl)}<span class="badge ${isBRL?'b-brl':'b-usd'}">${a.mo}</span></div>
+        </td>
+        <td style="border-left:1px solid var(--border)">${cotStr}</td>
+        <td><input class="pos-input" type="number" value="${qt}" min="0" step="1" onchange="updCotas(${origIdx},this.value)" style="width:80px"/></td>
+        <td>${a.v>0?'R$ '+fmt(a.v):'—'}</td>
+        <td style="border-right:1px solid var(--border);color:var(--teal)">${a.v>0?'USD '+fmt(a.v/d):'—'}</td>
+        <td>R$ ${fmt(a.des_brl)}</td>
+        <td style="border-right:1px solid var(--border)">USD ${fmt(a.des_usd)}</td>
+        <td>${fp(a.pa*100)}</td>
+        <td style="color:var(--text2)">${fp(a.pp*100)}</td>
+        <td class="${gc}">${a.gpp>0?'+':''}${fmt(a.gpp,1)}pp</td>
+        <td class="ap-val ${has?'':'z'}" style="border-left:1px solid var(--border)">${has?'R$ '+fmt(a.al):'—'}</td>
+        <td class="ap-usd-val ${has?'':'z'}">${has?'USD '+fmt(a.al_usd):'—'}</td>
+        <td style="border-right:1px solid var(--border);color:var(--text2);font-size:11px">${has?fmt(a.al_pct,1)+'%':'—'}</td>
+        <td>
+          <div style="display:flex;gap:4px;justify-content:flex-end">
+            <button class="btn btn-sm" onclick="openAtivoMod(${origIdx})">✎</button>
+            <button class="btn btn-sm btn-d" onclick="delA(${origIdx})">✕</button>
+          </div>
+        </td>
+      </tr>`);
+  });
+
+  // Charts
+  function donut(cid,lid,fn){
+    const map={};dados.forEach(a=>{const k=fn(a);map[k]=(map[k]||0)+a.v;});
+    const tot=Object.values(map).reduce((s,v)=>s+v,0)||1;
+    const lb=Object.keys(map),vl=Object.values(map);
+    const leg=document.getElementById(lid);
+    if(leg)leg.innerHTML=lb.map((l,i)=>`<div class="cl-i"><div class="cl-d" style="background:${COLORS[i%COLORS.length]}"></div>${l} <span style="color:var(--text3)">(${((vl[i]/tot)*100).toFixed(0)}%)</span></div>`).join('');
+    const cv=document.getElementById(cid);if(!cv)return null;
+    return new Chart(cv,{type:'doughnut',data:{labels:lb,datasets:[{data:vl,backgroundColor:COLORS,borderColor:'#131318',borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:false}}}});
+  }
+  if(ch1)ch1.destroy();if(ch2)ch2.destroy();if(ch3)ch3.destroy();
+  ch1=donut('c1','l1',a=>a.cl);
+  ch2=donut('c2','l2',a=>a.sc);
+  ch3=donut('c3','l3',a=>a.tk);
 }
 
-// ─────────────────────────────────────────────
-// EDIÇÃO
-// ─────────────────────────────────────────────
-function updA(i, f, v){
-  ativos[i][f] = v;
-  // Ao trocar bolsa, limpar cotações para rebucar
-  if(f === 'bolsa'){ ativos[i].cotacao_orig = 0; ativos[i].cotacao_brl = 0; }
-  saveLocal(); recalcular();
-}
-function updCotas(i, v){ ativos[i].cotas = parseFloat(v)||0; saveLocal(); recalcular(); }
-function setManualCot(i, v){ ativos[i].cotacao_orig = parseFloat(v)||0; ativos[i].cotacao_brl = parseFloat(v)||0; saveLocal(); recalcular(); }
-function remA(i){ ativos.splice(i,1); saveLocal(); recalcular(); }
-function addAtivo(){
-  ativos.push({ticker:'NOVO', bolsa:'B3', classe:'Renda Fixa Brasil', estrategia:'Satélite', pct_plan:0, cotas:0, cotacao_orig:0, cotacao_brl:0});
-  switchTab('ativos'); recalcular();
+renderSB();
+
+function toFinnSym(a){
+  const m={NYSE:t=>t, NASDAQ:t=>t};
+  return m[a.bo]?.(a.tk)||null;
 }
 
-function switchTab(name){
-  const names = ['dashboard','ativos','aportes'];
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
-  document.querySelectorAll('.tc').forEach(c => c.classList.remove('active'));
-  document.getElementById('tab-'+name).classList.add('active');
-  const dados = calcular();
-  if(name==='dashboard') renderDash(dados);
-  if(name==='ativos')    renderCart(dados);
-  if(name==='aportes')   renderAportes(dados);
+function toYahooSym(a){
+  const m={LSE:t=>`${t}.L`, XETRA:t=>`${t}.DE`};
+  return m[a.bo]?.(a.tk)||null;
 }
 
+// Proxies CORS para Yahoo Finance
+const PROXIES=[
+  url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
+  url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+];
+
+async function fetchYahoo(sym){
+  const url=`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`;
+  for(const proxy of PROXIES){
+    try{
+      const to=new Promise((_,r)=>setTimeout(()=>r(new Error('to')),7000));
+      const res=await Promise.race([fetch(proxy(url)),to]);
+      if(!res.ok) continue;
+      const d=await res.json();
+      const meta=d?.chart?.result?.[0]?.meta;
+      if(meta?.regularMarketPrice && meta.regularMarketPrice>0){
+        const p=meta.regularMarketPrice;
+        const prev=meta.chartPreviousClose||p;
+        return{price:p, var_pct:((p-prev)/(prev||1))*100};
+      }
+    }catch(e){}
+  }
+  return null;
+}
+
+async function buscarCotacoes(){
+  if(busyFetch||!CID) return;
+  busyFetch=true;
+  const btn=document.getElementById('btn-cot');
+  const fi=document.getElementById('fi-cot');
+  btn.disabled=true;
+  fi.innerHTML='<span style="display:inline-block;animation:spin .8s linear infinite">↻</span>';
+
+  const tb=document.getElementById('tok-brapi').value.trim();
+  const tf=document.getElementById('tok-finn').value.trim();
+  const ativos=DB[CID]?.ativos||[];
+
+  const resultados={};
+  ativos.forEach(a=>resultados[a.tk]='pendente');
+
+  // ── brapi → B3 ──
+  const b3=ativos.filter(a=>a.bo==='B3');
+  if(!tb && b3.length){
+    b3.forEach(a=>resultados[a.tk]='sem-token-brapi');
+  } else if(tb && b3.length){
+    const validos=b3.filter(a=>/^[A-Z0-9]{3,12}$/.test(a.tk));
+    b3.filter(a=>!/^[A-Z0-9]{3,12}$/.test(a.tk)).forEach(a=>resultados[a.tk]='manual');
+    const chunks=(arr,n)=>{const r=[];for(let i=0;i<arr.length;i+=n)r.push(arr.slice(i,i+n));return r;};
+    for(const chunk of chunks(validos.map(a=>a.tk),10)){
+      try{
+        const r=await fetch(`https://brapi.dev/api/quote/${chunk.join(',')}?token=${tb}`,{method:'GET', mode:'cors', cache:'no-cache'});
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        const data=await r.json();
+        // Debug: mostrar resposta da API
+        console.log('brapi response:', JSON.stringify(data).substring(0,500));
+        const encontrados=new Set((data.results||[]).map(q=>q.symbol));
+        (data.results||[]).forEach(q=>{
+          const a=ativos.find(x=>x.tk===q.symbol);
+          if(a && q.regularMarketPrice>0){
+            a.cotacao=q.regularMarketPrice;
+            varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};
+            resultados[a.tk]='ok';
+          } else if(a){ resultados[a.tk]='manual'; }
+        });
+        chunk.forEach(tk=>{ if(!encontrados.has(tk)) resultados[tk]='manual'; });
+      }catch(e){ chunk.forEach(tk=>resultados[tk]='erro'); }
+    }
+  }
+
+  // ── Yahoo Finance → LSE / XETRA (sem custo, via proxy CORS) ──
+  const lse=ativos.filter(a=>['LSE','XETRA'].includes(a.bo));
+  await Promise.all(lse.map(async a=>{
+    const sym=toYahooSym(a); if(!sym){ resultados[a.tk]='manual'; return; }
+    const r=await fetchYahoo(sym);
+    if(r){ a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; resultados[a.tk]='ok'; }
+    else { resultados[a.tk]='manual'; }
+  }));
+
+  // ── Finnhub → NYSE / NASDAQ (free tier funciona para EUA) ──
+  const us=ativos.filter(a=>['NYSE','NASDAQ'].includes(a.bo));
+  if(!tf && us.length){
+    us.forEach(a=>resultados[a.tk]='sem-token-finnhub');
+  } else if(tf && us.length){
+    await Promise.all(us.map(async a=>{
+      const sym=toFinnSym(a); if(!sym){ resultados[a.tk]='manual'; return; }
+      try{
+        const to=new Promise((_,r)=>setTimeout(()=>r(new Error('timeout')),8000));
+        const res=await Promise.race([fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(sym)}&token=${tf}`),to]);
+        if(!res.ok) throw new Error('HTTP '+res.status);
+        const data=await res.json();
+        if(data.c && data.c>0){ a.cotacao=data.c; varMap[a.tk]={var_pct:data.dp||0}; resultados[a.tk]='ok'; }
+        else { resultados[a.tk]='manual'; }
+      }catch(e){ resultados[a.tk]='erro'; }
+    }));
+  }
+
+  // ── Resumo ──
+  const ok     =ativos.filter(a=>resultados[a.tk]==='ok').map(a=>a.tk);
+  const manual =ativos.filter(a=>['manual','erro'].includes(resultados[a.tk])).map(a=>a.tk);
+  const semB   =ativos.filter(a=>resultados[a.tk]==='sem-token-brapi').map(a=>a.tk);
+  const semF   =ativos.filter(a=>resultados[a.tk]==='sem-token-finnhub').map(a=>a.tk);
+
+  let msg='';
+  if(ok.length)  msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
+  if(manual.length) msg+=`⚠ Insira manualmente: ${manual.join(', ')}\n\n`;
+  if(semB.length)   msg+=`ℹ Token brapi ausente (B3): ${semB.join(', ')}\n\n`;
+  if(semF.length)   msg+=`ℹ Token Finnhub ausente (NYSE/NASDAQ): ${semF.join(', ')}`;
+  if(msg) alert(msg.trim());
+
+  saveDB();
+  busyFetch=false;
+  btn.disabled=false;
+  fi.innerHTML='↻';
+  re();
+}
 </script>
 </body>
 </html>
