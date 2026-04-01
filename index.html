@@ -369,8 +369,17 @@ function saveAtivo(){
   }
 }
 function delA(i){if(!confirm('Remover?'))return;DB[CID].ativos.splice(i,1);saveDB();re();}
-function updCotas(i,val){ DB[CID].ativos[i].cotas=parseFloat(val)||0; saveDB(); re(); }
-function updCotacao(i,val){ DB[CID].ativos[i].cotacao=parseFloat(val)||0; saveDB(); re(); }
+let reTimer=null;
+function reDelay(){ clearTimeout(reTimer); reTimer=setTimeout(re,300); }
+
+function updCotas(i,val){
+  const v=parseFloat(String(val).replace(',','.'));
+  if(!isNaN(v)&&v>=0){ DB[CID].ativos[i].cotas=v; saveDB(); }
+}
+function updCotacao(i,val){
+  const v=parseFloat(String(val).replace(',','.'));
+  if(!isNaN(v)&&v>=0){ DB[CID].ativos[i].cotacao=v; saveDB(); }
+}
 
 function getD(){return parseFloat(document.getElementById('dolar').value)||5.80;}
 function getA(){return parseFloat(document.getElementById('aporte').value)||0;}
@@ -532,7 +541,10 @@ function re(){
     const cotStr=`
       <input class="pos-input ${isBRL?'':'pos-usd'}" type="number" value="${cot||''}"
         step="0.01" placeholder="0.00"
-        onblur="updCotacao(${origIdx},this.value)" style="width:88px"/>
+        oninput="updCotacao(${origIdx},this.value)"
+        onblur="re()"
+        onkeydown="if(event.key==='Enter'){re();this.blur();}"
+        style="width:105px"/>
       ${vr?`<div style="font-size:10px;color:${vr.var_pct>=0?'var(--green)':'var(--red)'}">
         ${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(1)}%</div>`
       :''}
@@ -546,7 +558,11 @@ function re(){
           <div class="at-bdg">${classBadge(a.cl)}<span class="badge ${isBRL?'b-brl':'b-usd'}">${a.mo}</span></div>
         </td>
         <td style="border-left:1px solid var(--border)">${cotStr}</td>
-        <td><input class="pos-input" type="number" value="${qt}" min="0" step="1" onblur="updCotas(${origIdx},this.value)" style="width:80px"/></td>
+        <td><input class="pos-input" type="number" value="${qt}" min="0" step="1"
+          oninput="updCotas(${origIdx},this.value)"
+          onblur="re()"
+          onkeydown="if(event.key==='Enter'){re();this.blur();}"
+          style="width:105px"/></td>
         <td>${a.v>0?'R$ '+fmt(a.v):'—'}</td>
         <td style="border-right:1px solid var(--border);color:var(--teal)">${a.v>0?'USD '+fmt(a.v/d):'—'}</td>
         <td>R$ ${fmt(a.des_brl)}</td>
