@@ -10,7 +10,7 @@
 :root{
   --bg:#0c0c0f;--bg2:#131318;--bg3:#1a1a22;--bg4:#22222d;
   --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.12);
-  --text:#eeedf5;--text2:#9896aa;--text3:#55546a;
+  --text:#eeedf5;--text2:#9896aa;--text3:#55546a;a
   --accent:#6c63ff;--accent2:#9b96ff;
   --green:#34d399;--red:#f87171;--amber:#fbbf24;--teal:#22d3ee;
 }
@@ -288,6 +288,7 @@ window.addEventListener('DOMContentLoaded',()=>{
   renderSB();
   const ids=Object.keys(DB);
   if(ids.length) sel(ids[0]);
+  fetchDolar();
 });
 
 function saveToks(){
@@ -526,12 +527,16 @@ function re(){
     const isBRL=a.mo==='BRL';
     const cot=a.cotacao||0;
     const qt=a.cotas||0;
+    // Cotação: sempre editável, com variação abaixo quando disponível
     const vr=varMap[a.tk];
-
-    // Cotação: se foi buscada via API mostra valor + variação; senão campo editável
-    const cotStr=cot>0
-      ?`<div style="font-family:monospace;font-size:12px;color:${isBRL?'var(--text)':'var(--teal)'}">${isBRL?'R$':'USD'} ${fmt(cot,2)}</div>${vr?`<div style="font-size:10px;color:${vr.var_pct>=0?'var(--green)':'var(--red)'}">${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(1)}%</div>`:'<div style="font-size:9px;color:var(--text3)">manual</div>'}`
-      :`<input class="pos-input ${isBRL?'':'pos-usd'}" type="number" value="${cot||''}" step="0.01" placeholder="0.00" onchange="updCotacao(${origIdx},this.value)" style="width:88px"/>`;
+    const cotStr=`
+      <input class="pos-input ${isBRL?'':'pos-usd'}" type="number" value="${cot||''}"
+        step="0.01" placeholder="0.00"
+        onchange="updCotacao(${origIdx},this.value)" style="width:88px"/>
+      ${vr?`<div style="font-size:10px;color:${vr.var_pct>=0?'var(--green)':'var(--red)'}">
+        ${vr.var_pct>=0?'+':''}${vr.var_pct.toFixed(1)}%</div>`
+      :''}
+    `;
 
     document.getElementById('a-rows').insertAdjacentHTML('beforeend',`
       <tr class="${pr?'p'+pr:''}">
@@ -636,6 +641,22 @@ async function fetchYahoo(sym){
   return null;
 }
 
+async function fetchDolar(){
+  // Tenta Yahoo Finance USDBRL=X
+  const r=await fetchYahoo('USDBRL=X');
+  if(r&&r.price>4&&r.price<10){
+    document.getElementById('dolar').value=r.price.toFixed(2);
+    re();
+    return;
+  }
+  // Fallback: Google Finance
+  const g=await fetchGoogle('CURRENCY:USDBRL');
+  if(g&&g.price>4&&g.price<10){
+    document.getElementById('dolar').value=g.price.toFixed(2);
+    re();
+  }
+}
+
 async function fetchAtivo(a){
   // 1. Tenta Yahoo Finance
   const ySym={B3:`${a.tk}.SA`,LSE:`${a.tk}.L`,XETRA:`${a.tk}.DE`,NYSE:a.tk,NASDAQ:a.tk}[a.bo]||`${a.tk}.SA`;
@@ -670,11 +691,15 @@ async function buscarCotacoes(){
   const ativos=DB[CID]?.ativos||[];
   const ok=[], manual=[];
 
-  await Promise.all(ativos.map(async a=>{
+  // Busca dólar junto com os ativos
+  await Promise.all([
+    fetchDolar(),
+    ...ativos.map(async a=>{
     const r=await fetchAtivo(a);
-    if(r){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
+    if(r && r.price >= 0.1){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
     else manual.push(a.tk);
-  }));
+  })
+  ]);
 
   let msg='';
   if(ok.length)     msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
