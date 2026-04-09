@@ -728,46 +728,31 @@ function re(){
 
 renderSB();
 
-const PROXIES=[
-  url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
-  url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-  url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  url=>`https://corsproxy.io/?${encodeURIComponent(url)}&t=${Date.now()}`, // retry corsproxy sem cache
-];
-
-async function fetchComProxy(url, timeoutMs=8000){
-  for(const proxy of PROXIES){
-    try{
-      const ctrl=new AbortController();
-      const tid=setTimeout(()=>ctrl.abort(), timeoutMs);
-      const res=await fetch(proxy(url),{signal:ctrl.signal});
-      clearTimeout(tid);
-      if(res.ok) return res;
-    }catch(e){}
-  }
+// Usa API própria do Vercel — sem CORS, sem proxy público
+async function fetchYahoo(sym){
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),10000);
+    const res=await fetch(`/api/quote?symbols=${encodeURIComponent(sym)}`,{signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!res.ok) return null;
+    const data=await res.json();
+    const r=data[sym];
+    if(r&&r.price>0) return r;
+  }catch(e){}
   return null;
 }
 
-async function fetchYahoo(sym){
-  const urls=[
-    `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
-    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
-  ];
-  for(const baseUrl of urls){
-    try{
-      const res=await fetchComProxy(baseUrl);
-      if(!res) continue;
-      const d=await res.json();
-      const meta=d?.chart?.result?.[0]?.meta;
-      if(!meta) continue;
-      const p=meta.regularMarketPrice>0 ? meta.regularMarketPrice : (meta.chartPreviousClose||0);
-      if(p>0){
-        const prev=meta.chartPreviousClose||p;
-        return{price:p, var_pct:((p-prev)/(prev||1))*100};
-      }
-    }catch(e){}
-  }
-  return null;
+// Busca múltiplos símbolos de uma vez (mais eficiente)
+async function fetchYahooMulti(syms){
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),15000);
+    const res=await fetch(`/api/quote?symbols=${syms.map(encodeURIComponent).join(',')}`,{signal:ctrl.signal});
+    clearTimeout(tid);
+    if(!res.ok) return {};
+    return await res.json();
+  }catch(e){ return {}; }
 }
 
 async function fetchDolar(){
@@ -822,45 +807,50 @@ async function buscarCotacoes(){
   const ok=[], manual=[];
   let novoDoalr=null;
 
-  // Busca dólar e ativos em paralelo
-  await Promise.all([
-    (async()=>{
-      // Tenta várias fontes para USD/BRL com retry
-      const simbolos=['USDBRL=X','BRL=X'];
-      for(const sym of simbolos){
-        for(let t=0;t<2;t++){
-          const r=await fetchYahoo(sym);
-          if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
-          await new Promise(res=>setTimeout(res,400));
-        }
-      }
-      // Fallback brapi
+  // Monta mapa símbolo Yahoo -> ativo
+  const sufixos={B3:'.SA', LSE:'.L', XETRA:'.DE', NYSE:'', NASDAQ:''};
+  const symMap={};
+  ativos.forEach(a=>{ const suf=sufixos[a.bo]??'.SA'; symMap[a.tk+suf]=a; });
+
+  // Uma única chamada para todos os símbolos + dólar
+  const todosSyms=[...Object.keys(symMap), 'USDBRL=X'];
+  const resultados=await fetchYahooMulti(todosSyms);
+
+  // Dólar
+  const rDol=resultados['USDBRL=X'];
+  if(rDol&&rDol.price>4&&rDol.price<10) novoDoalr=rDol.price.toFixed(2);
+
+  // Ativos
+  for(const [sym, a] of Object.entries(symMap)){
+    const r=resultados[sym];
+    if(r&&r.price>=0.01){
+      a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; ok.push(a.tk);
+    } else {
       const tb=localStorage.getItem('tok_brapi')||'';
-      if(tb){
+      if(tb&&a.bo==='B3'){
         try{
-          const res=await fetch(`https://brapi.dev/api/v2/currency?currency=USD-BRL&token=${tb}`,{mode:'cors'});
+          const res=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
           if(res.ok){
-            const d=await res.json();
-            const p=d?.currency?.[0]?.bidPrice;
-            if(p&&p>4&&p<10) novoDoalr=parseFloat(p).toFixed(2);
+            const data=await res.json();
+            const q=data?.results?.[0];
+            if(q?.regularMarketPrice>0){
+              a.cotacao=q.regularMarketPrice;
+              varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};
+              ok.push(a.tk); continue;
+            }
           }
         }catch(e){}
       }
-    })(),
-    ...ativos.map(async a=>{
-      const r=await fetchAtivo(a);
-      if(r && r.price >= 0.1){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
-      else manual.push(a.tk);
-    })
-  ]);
+      manual.push(a.tk);
+    }
+  }
 
-  // Aplicar dólar DEPOIS de tudo
   if(novoDoalr) document.getElementById('dolar').value=novoDoalr;
 
   let msg='';
   if(novoDoalr) msg+=`✓ USD/BRL: R$ ${novoDoalr}\n`;
-  if(ok.length) msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
-  if(manual.length) msg+=`⚠ Insira manualmente: ${manual.join(', ')}`;
+  if(ok.length) msg+=`✓ Atualizados: ${ok.join(', ')}\n`;
+  if(manual.length) msg+=`\n⚠ Insira manualmente: ${manual.join(', ')}`;
   if(msg) alert(msg.trim());
 
   saveDB();
