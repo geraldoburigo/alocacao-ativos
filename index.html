@@ -100,8 +100,12 @@ tbody tr.p3{border-left:2px solid var(--accent);}
 tbody td{padding:9px 12px;font-size:14px;text-align:right;vertical-align:middle;font-family:monospace;}
 tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 .at-tk{font-weight:600;font-size:15px;color:var(--text);font-family:monospace;}
-.at-info{font-size:13px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
-.at-bdg{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
+.at-cl{font-size:11px;color:var(--accent2);margin-top:2px;font-family:system-ui,sans-serif;font-weight:500;}
+.at-info{font-size:11px;color:var(--text3);margin-top:1px;font-family:system-ui,sans-serif;}
+.at-mo{font-weight:600;}
+.at-brl{color:#34d399;}
+.at-usd{color:#22d3ee;}
+.at-bdg{display:flex;gap:4px;margin-top:5px;flex-wrap:wrap;}
 .badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:12px;font-weight:500;}
 .b-brl{background:rgba(52,211,153,.1);color:#34d399;}
 .b-usd{background:rgba(34,211,238,.1);color:#22d3ee;}
@@ -292,10 +296,10 @@ const fmtV=(v)=>{
 
 function classBadge(cl){
   const m={
-    'Renda Fixa Brasil':'b-rf','Renda Fixa Exterior':'b-rf2',
-    'Renda Variável Brasil':'b-rv','Renda Variável Exterior':'b-rv2',
-    'Multimercados':'b-mm','Commodities':'b-cm',
-    'Criptomoedas':'b-al'
+    'Renda Fixa Brasil':'b-rf','Renda Fixa Exterior':'b-rf2','Renda Fixa':'b-rf',
+    'Renda Variável Brasil':'b-rv','Renda Variável Exterior':'b-rv2','Renda Variável':'b-rv',
+    'Fundos Imobiliários':'b-fi','Multimercados':'b-mm',
+    'Commodities':'b-cm','Criptomoedas':'b-al','Alternativos':'b-al'
   };
   return`<span class="badge ${m[cl]||'b-al'}">${cl}</span>`;
 }
@@ -707,10 +711,10 @@ function re(){
 
   // Ordenação: Classe (RV primeiro, RF depois, outros) → Sub-Classe → gap
   const ordemClasse={
-    'Renda Variável Brasil':1,'Renda Variável Exterior':2,
-    'Fundos Imobiliários':3,'Multimercados':4,
-    'Commodities':5,'Criptomoedas':6,
-    'Renda Fixa Brasil':7,'Renda Fixa Exterior':8
+    'Renda Variável Brasil':1,'Renda Variável Exterior':2,'Renda Variável':3,
+    'Fundos Imobiliários':4,'Multimercados':5,
+    'Commodities':6,'Criptomoedas':7,'Alternativos':8,
+    'Renda Fixa Brasil':9,'Renda Fixa Exterior':10,'Renda Fixa':11
   };
   const sorted=[...com].sort((a,b)=>{
     const oc=(ordemClasse[a.cl]||9)-(ordemClasse[b.cl]||9);
@@ -742,10 +746,10 @@ function re(){
 
     document.getElementById('a-rows').insertAdjacentHTML('beforeend',`
       <tr class="${pr?'p'+pr:''}">
-        <td>
+        <td style="min-width:140px;max-width:160px">
           <div class="at-tk">${a.tk}</div>
-          <div class="at-info">${a.sc} · ${a.bo}</div>
-          <div class="at-bdg">${classBadge(a.cl)}<span class="badge ${isBRL?'b-brl':'b-usd'}">${a.mo}</span></div>
+          <div class="at-cl">${a.cl}</div>
+          <div class="at-info">${a.sc} · ${a.bo} · <span class="at-mo ${isBRL?'at-brl':'at-usd'}">${a.mo}</span></div>
         </td>
         <td style="border-left:1px solid var(--border)">${cotStr}</td>
         <td><input class="pos-input" type="number" value="${qt}" min="0" step="1"
