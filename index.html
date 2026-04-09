@@ -100,7 +100,16 @@ tbody tr.p3{border-left:2px solid var(--accent);}
 tbody td{padding:9px 12px;font-size:14px;text-align:right;vertical-align:middle;font-family:monospace;}
 tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 .at-tk{font-weight:600;font-size:15px;color:var(--text);font-family:monospace;}
-.at-cl{font-size:11px;color:var(--accent2);margin-top:2px;font-family:system-ui,sans-serif;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
+.at-cl{font-size:11px;margin-top:2px;font-family:system-ui,sans-serif;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
+.cl-rve{color:#9b96ff;}   /* Renda Variável Exterior — roxo */
+.cl-rvb{color:#34d399;}   /* Renda Variável Brasil — verde */
+.cl-rfe{color:#60a5fa;}   /* Renda Fixa Exterior — azul */
+.cl-rfb{color:#22d3ee;}   /* Renda Fixa Brasil — teal */
+.cl-mm {color:#f472b6;}   /* Multimercados — rosa */
+.cl-cm {color:#fb923c;}   /* Commodities — laranja */
+.cl-cr {color:#fbbf24;}   /* Criptomoedas — amarelo */
+.cl-fi {color:#a78bfa;}   /* Fundos Imobiliários — lilás */
+.cl-al {color:#e879f9;}   /* Alternativos — magenta */
 .at-info{font-size:11px;color:var(--text3);margin-top:1px;font-family:system-ui,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
 .at-mo{font-weight:600;}
 .at-brl{color:#34d399;}
@@ -294,6 +303,15 @@ const fmtV=(v)=>{
   return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
 };
 
+function getClColor(cl){
+  const m={
+    'Renda Variável Exterior':'cl-rve','Renda Variável Brasil':'cl-rvb','Renda Variável':'cl-rvb',
+    'Renda Fixa Exterior':'cl-rfe','Renda Fixa Brasil':'cl-rfb','Renda Fixa':'cl-rfb',
+    'Multimercados':'cl-mm','Commodities':'cl-cm','Criptomoedas':'cl-cr',
+    'Fundos Imobiliários':'cl-fi','Alternativos':'cl-al'
+  };
+  return m[cl]||'cl-rvb';
+}
 function classBadge(cl){
   const m={
     'Renda Fixa Brasil':'b-rf','Renda Fixa Exterior':'b-rf2','Renda Fixa':'b-rf',
@@ -748,7 +766,7 @@ function re(){
       <tr class="${pr?'p'+pr:''}">
         <td style="min-width:140px;max-width:160px">
           <div class="at-tk">${a.tk}</div>
-          <div class="at-cl">${a.cl}</div>
+          <div class="at-cl ${getClColor(a.cl)}">${a.cl}</div>
           <div class="at-info">${a.sc} · ${a.bo} · <span class="at-mo ${isBRL?'at-brl':'at-usd'}">${a.mo}</span></div>
         </td>
         <td style="border-left:1px solid var(--border)">${cotStr}</td>
