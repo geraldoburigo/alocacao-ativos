@@ -84,7 +84,7 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 .tbl-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;min-width:900px;}
 thead th{
-  padding:9px 14px;text-align:right;font-size:12px;text-transform:uppercase;
+  padding:8px 12px;text-align:right;font-size:12px;text-transform:uppercase;
   letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);
   font-weight:500;white-space:nowrap;background:var(--bg3);
 }
@@ -97,16 +97,18 @@ tbody tr:hover{background:rgba(255,255,255,.015);}
 tbody tr.p1{border-left:2px solid var(--red);}
 tbody tr.p2{border-left:2px solid var(--amber);}
 tbody tr.p3{border-left:2px solid var(--accent);}
-tbody td{padding:11px 14px;font-size:15px;text-align:right;vertical-align:middle;font-family:monospace;}
+tbody td{padding:9px 12px;font-size:14px;text-align:right;vertical-align:middle;font-family:monospace;}
 tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
-.at-tk{font-weight:600;font-size:16px;color:var(--text);font-family:monospace;}
+.at-tk{font-weight:600;font-size:15px;color:var(--text);font-family:monospace;}
 .at-info{font-size:13px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
 .at-bdg{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
 .badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:12px;font-weight:500;}
 .b-brl{background:rgba(52,211,153,.1);color:#34d399;}
 .b-usd{background:rgba(34,211,238,.1);color:#22d3ee;}
 .b-rf{background:rgba(52,211,153,.12);color:#34d399;}
+.b-rf2{background:rgba(52,211,153,.06);color:#1D9E75;}
 .b-rv{background:rgba(108,99,255,.14);color:#9b96ff;}
+.b-rv2{background:rgba(108,99,255,.08);color:#7c74e8;}
 .b-fi{background:rgba(251,191,36,.1);color:#fbbf24;}
 .b-cm{background:rgba(251,146,60,.1);color:#fb923c;}
 .b-mm{background:rgba(244,114,182,.1);color:#f472b6;}
@@ -205,18 +207,19 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
       </div>
       <div class="mf"><label>Classe</label>
         <select id="a-cl">
-          <option>Renda Fixa</option><option>Renda Variável</option>
-          <option>Fundos Imobiliários</option><option>Commodities</option>
-          <option>Multimercados</option><option>Alternativos</option>
+          <option>Renda Fixa Brasil</option><option>Renda Fixa Exterior</option>
+          <option>Renda Variável Brasil</option><option>Renda Variável Exterior</option>
+          <option>Multimercados</option><option>Commodities</option>
+          <option>Criptomoedas</option>
         </select>
       </div>
       <div class="mf"><label>Sub-Classe</label>
         <select id="a-sc">
-          <option>Títulos Públicos</option><option>Crédito Privado</option>
           <option>Ações Globais</option><option>Ações Brasil</option>
-          <option>Fundos Imobiliários</option><option>Ouro</option>
+          <option>Títulos Públicos</option><option>Crédito Privado</option>
+          <option>Fundos Imobiliários</option><option>Multimercados</option>
           <option>Bitcoin</option><option>Cesta de Criptomoedas</option>
-          <option>Multimercados</option>
+          <option>Ouro</option><option>Prata</option><option>Urânio</option>
         </select>
       </div>
       <div class="mf"><label>Bolsa</label>
@@ -281,11 +284,19 @@ let DB={},CID=null,EI=null,ch1=null,ch2=null,ch3=null;
 let varMap={}, busyFetch=false;
 const fmt=(v,d=0)=>(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const fp=v=>(v||0).toFixed(1)+'%';
-// Formata valor monetário: arredonda para inteiro sempre
-const fmtV=(v)=>Math.round(v||0).toLocaleString('pt-BR');
+// Formata valor monetário: 2 casas decimais sempre
+const fmtV=(v)=>{
+  const n=Math.round((v||0)*100)/100;
+  return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+};
 
 function classBadge(cl){
-  const m={'Renda Fixa':'b-rf','Renda Variável':'b-rv','Fundos Imobiliários':'b-fi','Commodities':'b-cm','Multimercados':'b-mm','Alternativos':'b-al'};
+  const m={
+    'Renda Fixa Brasil':'b-rf','Renda Fixa Exterior':'b-rf2',
+    'Renda Variável Brasil':'b-rv','Renda Variável Exterior':'b-rv2',
+    'Multimercados':'b-mm','Commodities':'b-cm',
+    'Criptomoedas':'b-al'
+  };
   return`<span class="badge ${m[cl]||'b-al'}">${cl}</span>`;
 }
 
@@ -353,32 +364,34 @@ function importarExcel(input){
       // Mapa de opções válidas (case-insensitive)
       const MOEDAS=['BRL','USD','EUR','GBP'];
       const BOLSAS=['B3','LSE','NYSE','NASDAQ','XETRA'];
-      const CLASSES=['Renda Fixa','Renda Variável','Fundos Imobiliários','Commodities','Multimercados','Alternativos'];
-      const SUBCLASSES=['Títulos Públicos','Crédito Privado','Ações Globais','Ações Brasil','Fundos Imobiliários','Ouro','Bitcoin','Cesta de Criptomoedas','Multimercados'];
+      const CLASSES=['Renda Fixa Brasil','Renda Fixa Exterior','Renda Variável Brasil','Renda Variável Exterior','Multimercados','Commodities','Criptomoedas'];
+      const SUBCLASSES=['Ações Globais','Ações Brasil','Títulos Públicos','Crédito Privado','Fundos Imobiliários','Multimercados','Bitcoin','Cesta de Criptomoedas','Ouro','Prata','Urânio'];
 
       // Mapeamento flexível de classes — aceita variações comuns
       const mapClasse=(val)=>{
         const v=String(val||'').toLowerCase().trim();
-        if(v.includes('imobili')) return 'Fundos Imobiliários';
+        if(v.includes('cripto')||v.includes('crypto')) return 'Criptomoedas';
         if(v.includes('commodit')) return 'Commodities';
         if(v.includes('multi')) return 'Multimercados';
-        if(v.includes('alternati')) return 'Alternativos';
-        if(v.includes('fixa')||v.includes('renda fix')) return 'Renda Fixa';
-        if(v.includes('vari')||v.includes('renda var')) return 'Renda Variável';
-        // tenta match exato
-        return CLASSES.find(x=>x.toLowerCase()===v)||'Renda Variável';
+        if(v.includes('fix')&&v.includes('ext')) return 'Renda Fixa Exterior';
+        if(v.includes('fix')) return 'Renda Fixa Brasil';
+        if(v.includes('var')&&v.includes('ext')) return 'Renda Variável Exterior';
+        if(v.includes('var')) return 'Renda Variável Brasil';
+        return CLASSES.find(x=>x.toLowerCase()===v)||'Renda Variável Brasil';
       };
 
       const mapSubClasse=(val)=>{
         const v=String(val||'').toLowerCase().trim();
-        if(v.includes('público')||v.includes('publico')||v.includes('tesouro')) return 'Títulos Públicos';
-        if(v.includes('crédito')||v.includes('credito')||v.includes('privado')||v.includes('debênture')||v.includes('debenture')) return 'Crédito Privado';
-        if(v.includes('global')||v.includes('exterior')||v.includes('internac')) return 'Ações Globais';
-        if(v.includes('brasil')||v.includes('local')) return 'Ações Brasil';
-        if(v.includes('imobili')||v.includes('fii')) return 'Fundos Imobiliários';
+        if(v.includes('prata')||v.includes('silver')) return 'Prata';
+        if(v.includes('urân')||v.includes('uran')) return 'Urânio';
         if(v.includes('ouro')||v.includes('gold')) return 'Ouro';
         if(v.includes('bitcoin')||v.includes('btc')) return 'Bitcoin';
-        if(v.includes('cripto')||v.includes('crypto')||v.includes('cesta')) return 'Cesta de Criptomoedas';
+        if(v.includes('cesta')||v.includes('basket')) return 'Cesta de Criptomoedas';
+        if(v.includes('público')||v.includes('publico')||v.includes('tesouro')||v.includes('treasury')) return 'Títulos Públicos';
+        if(v.includes('crédito')||v.includes('credito')||v.includes('privado')||v.includes('debênture')||v.includes('debenture')) return 'Crédito Privado';
+        if(v.includes('global')||v.includes('exterior')||v.includes('internac')||v.includes('world')) return 'Ações Globais';
+        if(v.includes('brasil')||v.includes('local')||v.includes('br ')) return 'Ações Brasil';
+        if(v.includes('imobili')||v.includes('fii')) return 'Fundos Imobiliários';
         if(v.includes('multi')) return 'Multimercados';
         return SUBCLASSES.find(x=>x.toLowerCase()===v)||'Ações Globais';
       };
@@ -692,8 +705,20 @@ function re(){
   </div>
   </div>`;
 
-  // Renderiza linhas — ordenadas por gap (mais defasados primeiro)
-  const sorted=[...com].sort((a,b)=>a.gpp-b.gpp);
+  // Ordenação: Classe (RV primeiro, RF depois, outros) → Sub-Classe → gap
+  const ordemClasse={
+    'Renda Variável Brasil':1,'Renda Variável Exterior':2,
+    'Fundos Imobiliários':3,'Multimercados':4,
+    'Commodities':5,'Criptomoedas':6,
+    'Renda Fixa Brasil':7,'Renda Fixa Exterior':8
+  };
+  const sorted=[...com].sort((a,b)=>{
+    const oc=(ordemClasse[a.cl]||9)-(ordemClasse[b.cl]||9);
+    if(oc!==0) return oc;
+    const os=a.sc.localeCompare(b.sc,'pt-BR');
+    if(os!==0) return os;
+    return a.gpp-b.gpp;
+  });
   sorted.forEach((a,idx)=>{
     const origIdx=DB[CID].ativos.findIndex(x=>x.tk===a.tk);
     const has=a.al>0.5,ga=Math.abs(a.gpp),pr=has?(ga>5?1:ga>2?2:3):0;
