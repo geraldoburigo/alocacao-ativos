@@ -609,6 +609,8 @@ function toGoogleSym(a){
 const PROXIES=[
   url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
   url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+  url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  url=>`https://thingproxy.freeboard.io/fetch/${url}`,
 ];
 
 async function fetchGoogle(sym){
@@ -658,18 +660,14 @@ async function fetchYahoo(sym){
 }
 
 async function fetchDolar(){
-  // Tenta Yahoo Finance USDBRL=X
   const r=await fetchYahoo('USDBRL=X');
   if(r&&r.price>4&&r.price<10){
     document.getElementById('dolar').value=r.price.toFixed(2);
-    re();
     return;
   }
-  // Fallback: Google Finance
   const g=await fetchGoogle('CURRENCY:USDBRL');
   if(g&&g.price>4&&g.price<10){
     document.getElementById('dolar').value=g.price.toFixed(2);
-    re();
   }
 }
 
@@ -706,19 +704,29 @@ async function buscarCotacoes(){
 
   const ativos=DB[CID]?.ativos||[];
   const ok=[], manual=[];
+  let novoDoalr=null;
 
-  // Busca dólar junto com os ativos
+  // Busca dólar e ativos em paralelo
   await Promise.all([
-    fetchDolar(),
+    (async()=>{
+      const r=await fetchYahoo('USDBRL=X');
+      if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
+      const g=await fetchGoogle('CURRENCY:USDBRL');
+      if(g&&g.price>4&&g.price<10){ novoDoalr=g.price.toFixed(2); }
+    })(),
     ...ativos.map(async a=>{
-    const r=await fetchAtivo(a);
-    if(r && r.price >= 0.1){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
-    else manual.push(a.tk);
-  })
+      const r=await fetchAtivo(a);
+      if(r && r.price >= 0.1){a.cotacao=r.price;varMap[a.tk]={var_pct:r.var_pct};ok.push(a.tk);}
+      else manual.push(a.tk);
+    })
   ]);
 
+  // Aplicar dólar DEPOIS de tudo
+  if(novoDoalr) document.getElementById('dolar').value=novoDoalr;
+
   let msg='';
-  if(ok.length)     msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
+  if(novoDoalr) msg+=`✓ USD/BRL: R$ ${novoDoalr}\n`;
+  if(ok.length) msg+=`✓ Atualizados: ${ok.join(', ')}\n\n`;
   if(manual.length) msg+=`⚠ Insira manualmente: ${manual.join(', ')}`;
   if(msg) alert(msg.trim());
 
