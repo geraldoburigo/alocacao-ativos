@@ -741,10 +741,29 @@ async function buscarCotacoes(){
   // Busca dólar e ativos em paralelo
   await Promise.all([
     (async()=>{
-      const r=await fetchYahoo('USDBRL=X');
-      if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
-      const g=await fetchGoogle('CURRENCY:USDBRL');
-      if(g&&g.price>4&&g.price<10){ novoDoalr=g.price.toFixed(2); }
+      // Tenta várias fontes para USD/BRL
+      const tentativas=[
+        ()=>fetchYahoo('USDBRL=X'),
+        ()=>fetchYahoo('BRL=X'),
+        ()=>fetchGoogle('CURRENCY:USDBRL'),
+        async()=>{
+          // brapi também tem cotação de moedas
+          const tb=localStorage.getItem('tok_brapi')||'';
+          if(!tb) return null;
+          try{
+            const r=await fetch(`https://brapi.dev/api/v2/currency?currency=USD-BRL&token=${tb}`,{mode:'cors'});
+            if(!r.ok) return null;
+            const d=await r.json();
+            const p=d?.currency?.[0]?.bidPrice||d?.currency?.[0]?.ask;
+            if(p&&p>4&&p<10) return{price:parseFloat(p)};
+          }catch(e){}
+          return null;
+        }
+      ];
+      for(const fn of tentativas){
+        const r=await fn();
+        if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
+      }
     })(),
     ...ativos.map(async a=>{
       const r=await fetchAtivo(a);
