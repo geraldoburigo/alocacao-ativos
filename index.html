@@ -728,36 +728,21 @@ function re(){
 
 renderSB();
 
-function toGoogleSym(a){
-  const m={B3:'BVMF',LSE:'LON',NYSE:'NYSE',NASDAQ:'NASDAQ',XETRA:'ETR'};
-  const ex=m[a.bo]||'BVMF';
-  return`${ex}:${a.tk}`;
-}
-
 const PROXIES=[
   url=>`https://corsproxy.io/?${encodeURIComponent(url)}`,
   url=>`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
   url=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
-  url=>`https://thingproxy.freeboard.io/fetch/${url}`,
+  url=>`https://corsproxy.io/?${encodeURIComponent(url)}&t=${Date.now()}`, // retry corsproxy sem cache
 ];
 
-async function fetchGoogle(sym){
-  const url=`https://www.google.com/finance/quote/${sym}`;
+async function fetchComProxy(url, timeoutMs=8000){
   for(const proxy of PROXIES){
     try{
-      const to=new Promise((_,r)=>setTimeout(()=>r(new Error('to')),8000));
-      const res=await Promise.race([fetch(proxy(url)),to]);
-      if(!res.ok) continue;
-      const html=await res.text();
-      // Extrai preço do HTML do Google Finance
-      const m=html.match(/data-last-price="([0-9.,]+)"/);
-      const m2=html.match(/class="YMlKec fxKbKc">([^<]+)</);
-      const m3=html.match(/"price":"([0-9.]+)"/);
-      const raw=(m&&m[1])||(m2&&m2[1])||(m3&&m3[1]);
-      if(raw){
-        const price=parseFloat(raw.replace(',','.'));
-        if(price>0) return{price,var_pct:0};
-      }
+      const ctrl=new AbortController();
+      const tid=setTimeout(()=>ctrl.abort(), timeoutMs);
+      const res=await fetch(proxy(url),{signal:ctrl.signal});
+      clearTimeout(tid);
+      if(res.ok) return res;
     }catch(e){}
   }
   return null;
@@ -769,24 +754,18 @@ async function fetchYahoo(sym){
     `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
   ];
   for(const baseUrl of urls){
-    for(const proxy of PROXIES){
-      try{
-        const to=new Promise((_,r)=>setTimeout(()=>r(new Error('to')),7000));
-        const res=await Promise.race([fetch(proxy(baseUrl)),to]);
-        if(!res.ok) continue;
-        const d=await res.json();
-        const meta=d?.chart?.result?.[0]?.meta;
-        if(!meta) continue;
-        // Usa regularMarketPrice ou chartPreviousClose como fallback
-        const p=meta.regularMarketPrice>0
-          ? meta.regularMarketPrice
-          : meta.chartPreviousClose||0;
-        if(p>0){
-          const prev=meta.chartPreviousClose||p;
-          return{price:p,var_pct:((p-prev)/(prev||1))*100};
-        }
-      }catch(e){}
-    }
+    try{
+      const res=await fetchComProxy(baseUrl);
+      if(!res) continue;
+      const d=await res.json();
+      const meta=d?.chart?.result?.[0]?.meta;
+      if(!meta) continue;
+      const p=meta.regularMarketPrice>0 ? meta.regularMarketPrice : (meta.chartPreviousClose||0);
+      if(p>0){
+        const prev=meta.chartPreviousClose||p;
+        return{price:p, var_pct:((p-prev)/(prev||1))*100};
+      }
+    }catch(e){}
   }
   return null;
 }
@@ -804,20 +783,25 @@ async function fetchDolar(){
 }
 
 async function fetchAtivo(a){
-  // 1. Tenta Yahoo Finance
-  const ySym={B3:`${a.tk}.SA`,LSE:`${a.tk}.L`,XETRA:`${a.tk}.DE`,NYSE:a.tk,NASDAQ:a.tk}[a.bo]||`${a.tk}.SA`;
-  const y=await fetchYahoo(ySym);
-  if(y) return y;
-  // 2. Tenta Google Finance
-  const g=await fetchGoogle(toGoogleSym(a));
-  if(g) return g;
-  // 3. Tenta brapi se tiver token
+  // Tenta Yahoo Finance com sufixo correto por bolsa
+  const sufixos={B3:'.SA', LSE:'.L', XETRA:'.DE', NYSE:'', NASDAQ:''};
+  const suf=sufixos[a.bo]??'.SA';
+  const sym=a.tk+suf;
+
+  // Tenta até 3 vezes (proxies diferentes por tentativa)
+  for(let t=0;t<3;t++){
+    const r=await fetchYahoo(sym);
+    if(r && r.price>=0.01) return r;
+    await new Promise(res=>setTimeout(res,500)); // espera 500ms entre tentativas
+  }
+
+  // Fallback brapi para B3
   const tb=localStorage.getItem('tok_brapi')||'';
   if(tb&&a.bo==='B3'){
     try{
-      const r=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
-      if(r.ok){
-        const data=await r.json();
+      const res=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
+      if(res.ok){
+        const data=await res.json();
         const q=data?.results?.[0];
         if(q?.regularMarketPrice>0) return{price:q.regularMarketPrice,var_pct:q.regularMarketChangePercent||0};
       }
@@ -841,28 +825,26 @@ async function buscarCotacoes(){
   // Busca dólar e ativos em paralelo
   await Promise.all([
     (async()=>{
-      // Tenta várias fontes para USD/BRL
-      const tentativas=[
-        ()=>fetchYahoo('USDBRL=X'),
-        ()=>fetchYahoo('BRL=X'),
-        ()=>fetchGoogle('CURRENCY:USDBRL'),
-        async()=>{
-          // brapi também tem cotação de moedas
-          const tb=localStorage.getItem('tok_brapi')||'';
-          if(!tb) return null;
-          try{
-            const r=await fetch(`https://brapi.dev/api/v2/currency?currency=USD-BRL&token=${tb}`,{mode:'cors'});
-            if(!r.ok) return null;
-            const d=await r.json();
-            const p=d?.currency?.[0]?.bidPrice||d?.currency?.[0]?.ask;
-            if(p&&p>4&&p<10) return{price:parseFloat(p)};
-          }catch(e){}
-          return null;
+      // Tenta várias fontes para USD/BRL com retry
+      const simbolos=['USDBRL=X','BRL=X'];
+      for(const sym of simbolos){
+        for(let t=0;t<2;t++){
+          const r=await fetchYahoo(sym);
+          if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
+          await new Promise(res=>setTimeout(res,400));
         }
-      ];
-      for(const fn of tentativas){
-        const r=await fn();
-        if(r&&r.price>4&&r.price<10){ novoDoalr=r.price.toFixed(2); return; }
+      }
+      // Fallback brapi
+      const tb=localStorage.getItem('tok_brapi')||'';
+      if(tb){
+        try{
+          const res=await fetch(`https://brapi.dev/api/v2/currency?currency=USD-BRL&token=${tb}`,{mode:'cors'});
+          if(res.ok){
+            const d=await res.json();
+            const p=d?.currency?.[0]?.bidPrice;
+            if(p&&p>4&&p<10) novoDoalr=parseFloat(p).toFixed(2);
+          }
+        }catch(e){}
       }
     })(),
     ...ativos.map(async a=>{
