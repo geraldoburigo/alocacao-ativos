@@ -765,8 +765,8 @@ async function fetchGoogle(sym){
 
 async function fetchYahoo(sym){
   const urls=[
-    `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`,
-    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=2d`,
+    `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
   ];
   for(const baseUrl of urls){
     for(const proxy of PROXIES){
@@ -776,8 +776,12 @@ async function fetchYahoo(sym){
         if(!res.ok) continue;
         const d=await res.json();
         const meta=d?.chart?.result?.[0]?.meta;
-        if(meta?.regularMarketPrice>0){
-          const p=meta.regularMarketPrice;
+        if(!meta) continue;
+        // Usa regularMarketPrice ou chartPreviousClose como fallback
+        const p=meta.regularMarketPrice>0
+          ? meta.regularMarketPrice
+          : meta.chartPreviousClose||0;
+        if(p>0){
           const prev=meta.chartPreviousClose||p;
           return{price:p,var_pct:((p-prev)/(prev||1))*100};
         }
