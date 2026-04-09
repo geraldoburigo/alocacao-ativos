@@ -28,6 +28,11 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 .cli.active{background:rgba(108,99,255,.18);color:var(--accent2);}
 .cli-av{width:26px;height:26px;border-radius:50%;background:var(--bg4);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
 .cli.active .cli-av{background:rgba(108,99,255,.3);color:var(--accent2);}
+.cli-acts{display:none;gap:2px;flex-shrink:0;}
+.cli:hover .cli-acts{display:flex;}
+.cli-btn{background:transparent;border:none;cursor:pointer;color:var(--text3);font-size:11px;padding:2px 4px;border-radius:4px;transition:all .1s;line-height:1;}
+.cli-btn:hover{background:var(--bg4);color:var(--text);}
+.cli-btn-d:hover{color:var(--red)!important;}
 .sb-bot{padding:8px 6px 14px;}
 .btn-add-cli{width:100%;padding:8px;border-radius:8px;background:transparent;border:1px dashed rgba(108,99,255,.3);color:var(--accent2);font-size:12px;cursor:pointer;transition:all .12s;}
 .btn-add-cli:hover{background:rgba(108,99,255,.1);}
@@ -324,8 +329,35 @@ function saveCli(){
 function renderSB(){
   document.getElementById('cli-list').innerHTML=Object.keys(DB).map(id=>{
     const c=DB[id],ini=c.nome.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
-    return`<div class="cli ${id===CID?'active':''}" onclick="sel('${id}')"><div class="cli-av">${ini}</div><span>${c.nome}</span></div>`;
+    return`<div class="cli ${id===CID?'active':''}" onclick="sel('${id}')">
+      <div class="cli-av">${ini}</div>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.nome}</span>
+      <div class="cli-acts" onclick="event.stopPropagation()">
+        <button class="cli-btn" onclick="editCli('${id}')" title="Renomear">✎</button>
+        <button class="cli-btn cli-btn-d" onclick="delCli('${id}')" title="Excluir">✕</button>
+      </div>
+    </div>`;
   }).join('');
+}
+function editCli(id){
+  const novo=prompt('Novo nome:',DB[id].nome);
+  if(!novo||!novo.trim()) return;
+  DB[id].nome=novo.trim();
+  saveDB(); renderSB();
+  if(CID===id) document.getElementById('tb-t').textContent=DB[id].nome;
+}
+function delCli(id){
+  if(!confirm(`Excluir "${DB[id].nome}" e todos os seus ativos?`)) return;
+  delete DB[id];
+  saveDB();
+  if(CID===id){
+    CID=null;
+    document.getElementById('btn-at').style.display='none';
+    document.getElementById('tb-t').textContent='Selecione um cliente';
+    document.getElementById('tb-s').textContent='—';
+    document.getElementById('content').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;text-align:center"><div style="font-size:32px;opacity:.1">◎</div><div style="font-size:13px;color:var(--text2)">Nenhum cliente selecionado</div></div>`;
+  }
+  renderSB();
 }
 function sel(id){CID=id;renderSB();document.getElementById('tb-t').textContent=DB[id].nome;document.getElementById('btn-at').style.display='inline-flex';re();}
 
