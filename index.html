@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Alocação de Ativos</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -155,7 +156,11 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
   <div class="sb-logo"><h1>Portfólio</h1><p>Gestão de alocação de ativos</p></div>
   <div class="sb-sec">Clientes</div>
   <div class="cli-list" id="cli-list"></div>
-  <div class="sb-bot"><button class="btn-add-cli" onclick="openCliMod()">+ Adicionar cliente</button></div>
+  <div class="sb-bot">
+    <button class="btn-add-cli" onclick="openCliMod()">+ Adicionar cliente</button>
+    <input type="file" id="imp-file" accept=".xlsx,.xls" style="display:none" onchange="importarExcel(this)"/>
+    <button class="btn-add-cli" style="margin-top:6px;border-color:rgba(52,211,153,.3);color:var(--green)" onclick="document.getElementById('imp-file').click()">⬆ Importar Excel</button>
+  </div>
 </aside>
 
 <div class="main">
@@ -317,6 +322,97 @@ function saveToks(){
 
 function saveDB(){
   localStorage.setItem('carteira_db',JSON.stringify(DB));
+}
+
+function importarExcel(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'array'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+
+      // Encontra linha do cabeçalho (contém "Ticker")
+      let hIdx=rows.findIndex(r=>r.some(c=>String(c).toLowerCase().includes('ticker')));
+      if(hIdx<0){alert('Cabeçalho não encontrado. Verifique se o arquivo usa o template correto.');return;}
+
+      const headers=rows[hIdx].map(h=>String(h).toLowerCase().trim());
+      const iCli = headers.findIndex(h=>h.includes('cliente'));
+      const iTk  = headers.findIndex(h=>h.includes('ticker'));
+      const iMo  = headers.findIndex(h=>h.includes('moeda'));
+      const iBo  = headers.findIndex(h=>h.includes('bolsa'));
+      const iCl  = headers.findIndex(h=>h.includes('classe')&&!h.includes('sub'));
+      const iSc  = headers.findIndex(h=>h.includes('sub'));
+      const iPp  = headers.findIndex(h=>h.includes('%')||h.includes('planejad'));
+
+      if(iTk<0){alert('Coluna "Ticker" não encontrada.');return;}
+
+      // Mapa de opções válidas (case-insensitive)
+      const MOEDAS=['BRL','USD','EUR','GBP'];
+      const BOLSAS=['B3','LSE','NYSE','NASDAQ','XETRA'];
+      const CLASSES=['Renda Fixa','Renda Variável','Fundos Imobiliários','Commodities','Multimercados','Alternativos'];
+      const SUBCLASSES=['Títulos Públicos','Crédito Privado','Ações Globais','Ações Brasil','Fundos Imobiliários','Ouro','Bitcoin','Cesta de Criptomoedas','Multimercados'];
+
+      const normalizar=(val,lista)=>{
+        const v=String(val||'').trim();
+        return lista.find(x=>x.toLowerCase()===v.toLowerCase())||lista[0];
+      };
+
+      let cliAtual='', novos=0, erros=[];
+      const clientesNovos={};
+
+      for(let i=hIdx+1;i<rows.length;i++){
+        const row=rows[i];
+        const tk=String(row[iTk]||'').trim().toUpperCase();
+        if(!tk) continue;
+
+        // Nome do cliente — se vazio usa o anterior
+        const nomeCli=String(row[iCli]||'').trim();
+        if(nomeCli) cliAtual=nomeCli;
+        if(!cliAtual){erros.push(`Linha ${i+1}: sem cliente`);continue;}
+
+        const mo  = iMo>=0  ? normalizar(row[iMo], MOEDAS)     : 'BRL';
+        const bo  = iBo>=0  ? normalizar(row[iBo], BOLSAS)     : 'B3';
+        const cl  = iCl>=0  ? normalizar(row[iCl], CLASSES)    : 'Renda Variável';
+        const sc  = iSc>=0  ? normalizar(row[iSc], SUBCLASSES) : 'Ações Globais';
+        const pp  = iPp>=0  ? parseFloat(String(row[iPp]).replace(',','.'))||0 : 0;
+
+        if(!clientesNovos[cliAtual]) clientesNovos[cliAtual]=[];
+        clientesNovos[cliAtual].push({tk,mo,bo,cl,sc,pp,cotacao:0,cotas:0});
+        novos++;
+      }
+
+      if(novos===0){alert('Nenhum ativo encontrado no arquivo.');return;}
+
+      // Criar clientes e ativos no DB
+      let criados=0;
+      Object.entries(clientesNovos).forEach(([nome,ativos])=>{
+        // Verifica se já existe cliente com mesmo nome
+        const existente=Object.keys(DB).find(id=>DB[id].nome.toLowerCase()===nome.toLowerCase());
+        if(existente){
+          DB[existente].ativos.push(...ativos);
+        } else {
+          const id='c'+Date.now()+Math.random().toString(36).slice(2,6);
+          DB[id]={nome,ativos};
+          criados++;
+        }
+      });
+
+      saveDB(); renderSB();
+      const ids=Object.keys(DB);
+      if(ids.length) sel(ids[ids.length-1]);
+
+      let msg=`✓ Importado com sucesso!\n${Object.keys(clientesNovos).length} cliente(s), ${novos} ativo(s)`;
+      if(erros.length) msg+=`\n\n⚠ Avisos:\n${erros.join('\n')}`;
+      alert(msg);
+
+    }catch(err){
+      alert('Erro ao ler o arquivo: '+err.message);
+    }
+    input.value=''; // limpa para permitir reimportar
+  };
+  reader.readAsArrayBuffer(file);
 }
 
 function openCliMod(){document.getElementById('m-cli').style.display='flex';setTimeout(()=>document.getElementById('cli-n').focus(),50);}
