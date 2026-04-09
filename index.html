@@ -41,8 +41,8 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 /* MAIN */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap;gap:8px;flex-shrink:0;}
-.tb-l h2{font-size:13px;font-weight:500;}
-.tb-l p{font-size:11px;color:var(--text3);}
+.tb-l h2{font-size:15px;font-weight:500;}
+.tb-l p{font-size:13px;color:var(--text3);}
 .tb-r{display:flex;gap:7px;align-items:center;flex-wrap:wrap;}
 .pill{display:flex;align-items:center;gap:5px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:4px 9px;}
 .pill label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap;}
@@ -63,9 +63,9 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 /* SUMMARY CARDS */
 .strip{display:grid;grid-template-columns:repeat(5,1fr);gap:9px;margin-bottom:14px;}
 .sc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 13px;}
-.sc .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:5px;}
-.sc .val{font-size:18px;font-weight:600;font-family:monospace;}
-.sc .sub{font-size:11px;color:var(--text2);margin-top:3px;}
+.sc .lbl{font-size:12px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:5px;}
+.sc .val{font-size:20px;font-weight:600;font-family:monospace;}
+.sc .sub{font-size:12px;color:var(--text2);margin-top:3px;}
 
 /* CHARTS + TABLE side by side */
 .main-layout{display:grid;grid-template-columns:300px 1fr;gap:12px;margin-bottom:14px;align-items:start;}
@@ -73,23 +73,23 @@ body{background:var(--bg);color:var(--text);font-family:system-ui,sans-serif;fon
 .cc{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
 .cc h4{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--text3);margin-bottom:8px;}
 .cleg{display:flex;flex-wrap:wrap;gap:4px 10px;margin-bottom:8px;}
-.cl-i{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
+.cl-i{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text2);}
 .cl-d{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
 
 /* MAIN TABLE */
 .aw{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
 .aw-h{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);flex-wrap:wrap;gap:8px;}
-.aw-h h3{font-size:13px;font-weight:500;}
-.aw-h-right{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text2);}
+.aw-h h3{font-size:15px;font-weight:500;}
+.aw-h-right{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);}
 .tbl-scroll{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;min-width:900px;}
 thead th{
-  padding:8px 13px;text-align:right;font-size:11px;text-transform:uppercase;
+  padding:9px 14px;text-align:right;font-size:12px;text-transform:uppercase;
   letter-spacing:.06em;color:var(--text3);border-bottom:1px solid var(--border);
   font-weight:500;white-space:nowrap;background:var(--bg3);
 }
 thead th:first-child{text-align:left;}
-.th-group{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);
+.th-group{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);
   background:var(--bg4);padding:4px 11px;text-align:center;border-bottom:1px solid var(--border);}
 tbody tr{border-bottom:1px solid var(--border);transition:background .1s;}
 tbody tr:last-child{border-bottom:none;}
@@ -97,12 +97,12 @@ tbody tr:hover{background:rgba(255,255,255,.015);}
 tbody tr.p1{border-left:2px solid var(--red);}
 tbody tr.p2{border-left:2px solid var(--amber);}
 tbody tr.p3{border-left:2px solid var(--accent);}
-tbody td{padding:10px 13px;font-size:13px;text-align:right;vertical-align:middle;font-family:monospace;}
+tbody td{padding:11px 14px;font-size:15px;text-align:right;vertical-align:middle;font-family:monospace;}
 tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
-.at-tk{font-weight:600;font-size:15px;color:var(--text);font-family:monospace;}
-.at-info{font-size:12px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
+.at-tk{font-weight:600;font-size:16px;color:var(--text);font-family:monospace;}
+.at-info{font-size:13px;color:var(--text3);margin-top:2px;font-family:system-ui,sans-serif;}
 .at-bdg{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap;}
-.badge{display:inline-flex;padding:3px 8px;border-radius:100px;font-size:11px;font-weight:500;}
+.badge{display:inline-flex;padding:3px 9px;border-radius:100px;font-size:12px;font-weight:500;}
 .b-brl{background:rgba(52,211,153,.1);color:#34d399;}
 .b-usd{background:rgba(34,211,238,.1);color:#22d3ee;}
 .b-rf{background:rgba(52,211,153,.12);color:#34d399;}
@@ -115,7 +115,7 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 /* Editable pos input */
 .pos-input{
   background:var(--bg3);border:1px solid var(--border2);border-radius:8px;
-  padding:7px 11px;font-size:13px;font-family:monospace;color:var(--text);
+  padding:8px 12px;font-size:14px;font-family:monospace;color:var(--text);
   text-align:right;outline:none;width:105px;transition:border .15s,background .15s;
   -moz-appearance:textfield;
 }
@@ -131,10 +131,10 @@ tbody td:first-child{text-align:left;font-family:system-ui,sans-serif;}
 .ap-usd-val{color:var(--teal);}
 .ap-usd-val.z{color:var(--text3);}
 
-.pct-foot{display:flex;align-items:center;gap:8px;font-size:12px;padding:10px 16px;background:var(--bg3);border-top:1px solid var(--border);}
+.pct-foot{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px 16px;background:var(--bg3);border-top:1px solid var(--border);}
 .add-row{padding:8px 14px;}
 
-.li{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
+.li{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--text2);}
 .ld{width:8px;height:8px;border-radius:2px;}
 
 /* MODAL */
@@ -281,6 +281,8 @@ let DB={},CID=null,EI=null,ch1=null,ch2=null,ch3=null;
 let varMap={}, busyFetch=false;
 const fmt=(v,d=0)=>(v||0).toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
 const fp=v=>(v||0).toFixed(1)+'%';
+// Formata valor monetário: arredonda para inteiro sempre
+const fmtV=(v)=>Math.round(v||0).toLocaleString('pt-BR');
 
 function classBadge(cl){
   const m={'Renda Fixa':'b-rf','Renda Variável':'b-rv','Fundos Imobiliários':'b-fi','Commodities':'b-cm','Multimercados':'b-mm','Alternativos':'b-al'};
@@ -354,9 +356,44 @@ function importarExcel(input){
       const CLASSES=['Renda Fixa','Renda Variável','Fundos Imobiliários','Commodities','Multimercados','Alternativos'];
       const SUBCLASSES=['Títulos Públicos','Crédito Privado','Ações Globais','Ações Brasil','Fundos Imobiliários','Ouro','Bitcoin','Cesta de Criptomoedas','Multimercados'];
 
+      // Mapeamento flexível de classes — aceita variações comuns
+      const mapClasse=(val)=>{
+        const v=String(val||'').toLowerCase().trim();
+        if(v.includes('imobili')) return 'Fundos Imobiliários';
+        if(v.includes('commodit')) return 'Commodities';
+        if(v.includes('multi')) return 'Multimercados';
+        if(v.includes('alternati')) return 'Alternativos';
+        if(v.includes('fixa')||v.includes('renda fix')) return 'Renda Fixa';
+        if(v.includes('vari')||v.includes('renda var')) return 'Renda Variável';
+        // tenta match exato
+        return CLASSES.find(x=>x.toLowerCase()===v)||'Renda Variável';
+      };
+
+      const mapSubClasse=(val)=>{
+        const v=String(val||'').toLowerCase().trim();
+        if(v.includes('público')||v.includes('publico')||v.includes('tesouro')) return 'Títulos Públicos';
+        if(v.includes('crédito')||v.includes('credito')||v.includes('privado')||v.includes('debênture')||v.includes('debenture')) return 'Crédito Privado';
+        if(v.includes('global')||v.includes('exterior')||v.includes('internac')) return 'Ações Globais';
+        if(v.includes('brasil')||v.includes('local')) return 'Ações Brasil';
+        if(v.includes('imobili')||v.includes('fii')) return 'Fundos Imobiliários';
+        if(v.includes('ouro')||v.includes('gold')) return 'Ouro';
+        if(v.includes('bitcoin')||v.includes('btc')) return 'Bitcoin';
+        if(v.includes('cripto')||v.includes('crypto')||v.includes('cesta')) return 'Cesta de Criptomoedas';
+        if(v.includes('multi')) return 'Multimercados';
+        return SUBCLASSES.find(x=>x.toLowerCase()===v)||'Ações Globais';
+      };
+
       const normalizar=(val,lista)=>{
         const v=String(val||'').trim();
         return lista.find(x=>x.toLowerCase()===v.toLowerCase())||lista[0];
+      };
+
+      // Detecta se % está em decimal (0.14) ou inteiro (14)
+      const parsePP=(val)=>{
+        const v=parseFloat(String(val||'0').replace(',','.'));
+        if(isNaN(v)||v===0) return 0;
+        // Se valor <= 1 provavelmente é decimal (0.14 = 14%)
+        return v <= 1 ? Math.round(v*1000)/10 : v;
       };
 
       let cliAtual='', novos=0, erros=[];
@@ -372,11 +409,11 @@ function importarExcel(input){
         if(nomeCli) cliAtual=nomeCli;
         if(!cliAtual){erros.push(`Linha ${i+1}: sem cliente`);continue;}
 
-        const mo  = iMo>=0  ? normalizar(row[iMo], MOEDAS)     : 'BRL';
-        const bo  = iBo>=0  ? normalizar(row[iBo], BOLSAS)     : 'B3';
-        const cl  = iCl>=0  ? normalizar(row[iCl], CLASSES)    : 'Renda Variável';
-        const sc  = iSc>=0  ? normalizar(row[iSc], SUBCLASSES) : 'Ações Globais';
-        const pp  = iPp>=0  ? parseFloat(String(row[iPp]).replace(',','.'))||0 : 0;
+        const mo  = iMo>=0  ? normalizar(row[iMo], MOEDAS) : 'BRL';
+        const bo  = iBo>=0  ? normalizar(row[iBo], BOLSAS) : 'B3';
+        const cl  = iCl>=0  ? mapClasse(row[iCl])          : 'Renda Variável';
+        const sc  = iSc>=0  ? mapSubClasse(row[iSc])        : 'Ações Globais';
+        const pp  = iPp>=0  ? parsePP(row[iPp])             : 0;
 
         if(!clientesNovos[cliAtual]) clientesNovos[cliAtual]=[];
         clientesNovos[cliAtual].push({tk,mo,bo,cl,sc,pp,cotacao:0,cotas:0});
@@ -583,7 +620,7 @@ function calcAp(dados){
 function re(){
   if(!CID)return;
   const c=DB[CID],dados=calc(),com=calcAp(dados),d=getD(),ap=getA(),tot=dados[0]?.tot||0;
-  document.getElementById('tb-s').textContent=`${c.ativos.length} ativos · R$ ${fmt(tot)} · USD ${fmt(tot/d)}`;
+  document.getElementById('tb-s').textContent=`${c.ativos.length} ativos · R$ ${fmtV(tot)} · USD ${fmtV(tot/d)}`;
 
   if(!c.ativos.length){
     document.getElementById('content').innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:10px;text-align:center"><div style="font-size:32px;opacity:.1">◎</div><div style="color:var(--text2)">Carteira vazia</div><button class="btn btn-p" style="margin-top:8px" onclick="openAtivoMod()">+ Adicionar ativo</button></div>`;
@@ -596,8 +633,8 @@ function re(){
 
   document.getElementById('content').innerHTML=`
   <div class="strip">
-    <div class="sc"><div class="lbl">Patrimônio</div><div class="val" style="color:var(--accent2)">R$ ${fmt(tot)}</div><div class="sub">USD ${fmt(tot/d)}</div></div>
-    <div class="sc"><div class="lbl">Aporte mensal</div><div class="val" style="color:var(--amber)">R$ ${fmt(ap)}</div><div class="sub">USD ${fmt(ap/d)}</div></div>
+    <div class="sc"><div class="lbl">Patrimônio</div><div class="val" style="color:var(--accent2)">R$ ${fmtV(tot)}</div><div class="sub">USD ${fmtV(tot/d)}</div></div>
+    <div class="sc"><div class="lbl">Aporte mensal</div><div class="val" style="color:var(--amber)">R$ ${fmtV(ap)}</div><div class="sub">USD ${fmtV(ap/d)}</div></div>
     <div class="sc"><div class="lbl">Ativos</div><div class="val" style="color:var(--teal)">${c.ativos.length}</div><div class="sub">${c.ativos.filter(a=>a.pos>0).length} com posição</div></div>
     <div class="sc"><div class="lbl">USD/BRL</div><div class="val" style="color:var(--green)">R$ ${fmt(d,2)}</div></div>
     <div class="sc"><div class="lbl">% Planejado</div><div class="val" style="color:${tpC}">${fmt(tp,1)}%</div><div class="sub">${Math.abs(tp-100)<0.1?'✓ OK':tp>100?'Excede':'Faltam '+(100-tp).toFixed(1)+'%'}</div></div>
@@ -615,7 +652,7 @@ function re(){
         <div class="li"><div class="ld" style="background:#f87171"></div>Alta (&gt;5pp)</div>
         <div class="li"><div class="ld" style="background:#fbbf24"></div>Média (2–5pp)</div>
         <div class="li"><div class="ld" style="background:#6c63ff"></div>Baixa (&lt;2pp)</div>
-        <span style="margin-left:4px">Aporte total: <b style="color:var(--green);font-family:monospace">R$ ${fmt(totAporte)}</b> / <b style="color:var(--teal);font-family:monospace">USD ${fmt(totAporte/d)}</b></span>
+        <span style="margin-left:4px">Aporte total: <b style="color:var(--green);font-family:monospace">R$ ${fmtV(totAporte)}</b> / <b style="color:var(--teal);font-family:monospace">USD ${fmtV(totAporte/d)}</b></span>
         <button class="btn btn-p btn-sm" onclick="openAtivoMod()">+ Ativo</button>
       </div>
     </div>
@@ -691,15 +728,15 @@ function re(){
           onblur="re()"
           onkeydown="if(event.key==='Enter'){re();this.blur();}"
           style="width:105px"/></td>
-        <td>${a.v>0?'R$ '+fmt(a.v):'—'}</td>
-        <td style="border-right:1px solid var(--border);color:var(--teal)">${a.v>0?'USD '+fmt(a.v/d):'—'}</td>
-        <td>R$ ${fmt(a.des_brl)}</td>
-        <td style="border-right:1px solid var(--border)">USD ${fmt(a.des_usd)}</td>
+        <td>${a.v>0?'R$ '+fmtV(a.v):'—'}</td>
+        <td style="border-right:1px solid var(--border);color:var(--teal)">${a.v>0?'USD '+fmtV(a.v/d):'—'}</td>
+        <td>R$ ${fmtV(a.des_brl)}</td>
+        <td style="border-right:1px solid var(--border)">USD ${fmtV(a.des_usd)}</td>
         <td>${fp(a.pa*100)}</td>
         <td style="color:var(--text2)">${fp(a.pp*100)}</td>
         <td class="${gc}">${a.gpp>0?'+':''}${fmt(a.gpp,1)}pp</td>
-        <td class="ap-val ${has?'':'z'}" style="border-left:1px solid var(--border)">${has?'R$ '+fmt(a.al):'—'}</td>
-        <td class="ap-usd-val ${has?'':'z'}">${has?'USD '+fmt(a.al_usd):'—'}</td>
+        <td class="ap-val ${has?'':'z'}" style="border-left:1px solid var(--border)">${has?'R$ '+fmtV(a.al):'—'}</td>
+        <td class="ap-usd-val ${has?'':'z'}">${has?'USD '+fmtV(a.al_usd):'—'}</td>
         <td style="border-right:1px solid var(--border);color:var(--text2);font-size:11px">${has?fmt(a.al_pct,1)+'%':'—'}</td>
         <td>
           <div style="display:flex;gap:4px;justify-content:flex-end">
@@ -728,69 +765,48 @@ function re(){
 
 renderSB();
 
-// Usa API própria do Vercel — sem CORS, sem proxy público
-async function fetchYahoo(sym){
+// ── COTAÇÕES ──────────────────────────────────────────────
+const PROXIES=[
+  u=>`https://corsproxy.io/?${encodeURIComponent(u)}`,
+  u=>`https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+  u=>`https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(u)}`,
+];
+
+async function yahooFetch(sym){
+  const urls=[
+    `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
+    `https://query2.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=5d`,
+  ];
+  // 1. Tenta API própria Vercel (sem CORS)
   try{
     const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),10000);
+    setTimeout(()=>ctrl.abort(),8000);
     const res=await fetch(`/api/quote?symbols=${encodeURIComponent(sym)}`,{signal:ctrl.signal});
-    clearTimeout(tid);
-    if(!res.ok) return null;
-    const data=await res.json();
-    const r=data[sym];
-    if(r&&r.price>0) return r;
+    if(res.ok){
+      const d=await res.json();
+      const r=d[sym];
+      if(r&&r.price>0) return r;
+    }
   }catch(e){}
-  return null;
-}
 
-// Busca múltiplos símbolos de uma vez (mais eficiente)
-async function fetchYahooMulti(syms){
-  try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),15000);
-    const res=await fetch(`/api/quote?symbols=${syms.map(encodeURIComponent).join(',')}`,{signal:ctrl.signal});
-    clearTimeout(tid);
-    if(!res.ok) return {};
-    return await res.json();
-  }catch(e){ return {}; }
-}
-
-async function fetchDolar(){
-  const r=await fetchYahoo('USDBRL=X');
-  if(r&&r.price>4&&r.price<10){
-    document.getElementById('dolar').value=r.price.toFixed(2);
-    return;
-  }
-  const g=await fetchGoogle('CURRENCY:USDBRL');
-  if(g&&g.price>4&&g.price<10){
-    document.getElementById('dolar').value=g.price.toFixed(2);
-  }
-}
-
-async function fetchAtivo(a){
-  // Tenta Yahoo Finance com sufixo correto por bolsa
-  const sufixos={B3:'.SA', LSE:'.L', XETRA:'.DE', NYSE:'', NASDAQ:''};
-  const suf=sufixos[a.bo]??'.SA';
-  const sym=a.tk+suf;
-
-  // Tenta até 3 vezes (proxies diferentes por tentativa)
-  for(let t=0;t<3;t++){
-    const r=await fetchYahoo(sym);
-    if(r && r.price>=0.01) return r;
-    await new Promise(res=>setTimeout(res,500)); // espera 500ms entre tentativas
-  }
-
-  // Fallback brapi para B3
-  const tb=localStorage.getItem('tok_brapi')||'';
-  if(tb&&a.bo==='B3'){
-    try{
-      const res=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
-      if(res.ok){
-        const data=await res.json();
-        const q=data?.results?.[0];
-        if(q?.regularMarketPrice>0) return{price:q.regularMarketPrice,var_pct:q.regularMarketChangePercent||0};
-      }
-    }catch(e){}
+  // 2. Fallback: proxies públicos
+  for(const url of urls){
+    for(const proxy of PROXIES){
+      try{
+        const ctrl=new AbortController();
+        setTimeout(()=>ctrl.abort(),7000);
+        const res=await fetch(proxy(url),{signal:ctrl.signal});
+        if(!res.ok) continue;
+        const d=await res.json();
+        const meta=d?.chart?.result?.[0]?.meta;
+        if(!meta) continue;
+        const p=meta.regularMarketPrice>0?meta.regularMarketPrice:(meta.chartPreviousClose||0);
+        if(p>0){
+          const prev=meta.chartPreviousClose||p;
+          return{price:p, var_pct:((p-prev)/(prev||1))*100};
+        }
+      }catch(e){}
+    }
   }
   return null;
 }
@@ -805,59 +821,66 @@ async function buscarCotacoes(){
 
   const ativos=DB[CID]?.ativos||[];
   const ok=[], manual=[];
-  let novoDoalr=null;
+  let novoDolar=null;
 
-  // Monta mapa símbolo Yahoo -> ativo
-  const sufixos={B3:'.SA', LSE:'.L', XETRA:'.DE', NYSE:'', NASDAQ:''};
-  const symMap={};
-  ativos.forEach(a=>{ const suf=sufixos[a.bo]??'.SA'; symMap[a.tk+suf]=a; });
+  const sufixos={B3:'.SA',LSE:'.L',XETRA:'.DE',NYSE:'',NASDAQ:''};
 
-  // Uma única chamada para todos os símbolos + dólar
-  const todosSyms=[...Object.keys(symMap), 'USDBRL=X'];
-  const resultados=await fetchYahooMulti(todosSyms);
-
-  // Dólar
-  const rDol=resultados['USDBRL=X'];
-  if(rDol&&rDol.price>4&&rDol.price<10) novoDoalr=rDol.price.toFixed(2);
-
-  // Ativos
-  for(const [sym, a] of Object.entries(symMap)){
-    const r=resultados[sym];
-    if(r&&r.price>=0.01){
-      a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; ok.push(a.tk);
-    } else {
+  // Busca todos em paralelo incluindo dólar
+  await Promise.all([
+    // Dólar
+    (async()=>{
+      const r=await yahooFetch('USDBRL=X');
+      if(r&&r.price>4&&r.price<10){ novoDolar=r.price.toFixed(2); return; }
+      // Fallback brapi moeda
       const tb=localStorage.getItem('tok_brapi')||'';
-      if(tb&&a.bo==='B3'){
-        try{
-          const res=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
-          if(res.ok){
-            const data=await res.json();
-            const q=data?.results?.[0];
-            if(q?.regularMarketPrice>0){
-              a.cotacao=q.regularMarketPrice;
-              varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};
-              ok.push(a.tk); continue;
+      if(!tb) return;
+      try{
+        const res=await fetch(`https://brapi.dev/api/v2/currency?currency=USD-BRL&token=${tb}`,{mode:'cors'});
+        if(res.ok){
+          const d=await res.json();
+          const p=parseFloat(d?.currency?.[0]?.bidPrice||0);
+          if(p>4&&p<10) novoDolar=p.toFixed(2);
+        }
+      }catch(e){}
+    })(),
+    // Ativos
+    ...ativos.map(async a=>{
+      const suf=sufixos[a.bo]??'.SA';
+      const sym=a.tk+suf;
+      const r=await yahooFetch(sym);
+      if(r&&r.price>=0.01){
+        a.cotacao=r.price; varMap[a.tk]={var_pct:r.var_pct}; ok.push(a.tk);
+      } else {
+        // Fallback brapi B3
+        const tb=localStorage.getItem('tok_brapi')||'';
+        if(tb&&a.bo==='B3'){
+          try{
+            const res=await fetch(`https://brapi.dev/api/quote/${a.tk}?token=${tb}`,{mode:'cors'});
+            if(res.ok){
+              const d=await res.json();
+              const q=d?.results?.[0];
+              if(q?.regularMarketPrice>0){
+                a.cotacao=q.regularMarketPrice;
+                varMap[a.tk]={var_pct:q.regularMarketChangePercent||0};
+                ok.push(a.tk); return;
+              }
             }
-          }
-        }catch(e){}
+          }catch(e){}
+        }
+        manual.push(a.tk);
       }
-      manual.push(a.tk);
-    }
-  }
+    })
+  ]);
 
-  if(novoDoalr) document.getElementById('dolar').value=novoDoalr;
+  if(novoDolar) document.getElementById('dolar').value=novoDolar;
 
   let msg='';
-  if(novoDoalr) msg+=`✓ USD/BRL: R$ ${novoDoalr}\n`;
+  if(novoDolar) msg+=`✓ USD/BRL: R$ ${novoDolar}\n`;
   if(ok.length) msg+=`✓ Atualizados: ${ok.join(', ')}\n`;
   if(manual.length) msg+=`\n⚠ Insira manualmente: ${manual.join(', ')}`;
   if(msg) alert(msg.trim());
 
-  saveDB();
-  busyFetch=false;
-  btn.disabled=false;
-  fi.innerHTML='↻';
-  re();
+  saveDB(); busyFetch=false; btn.disabled=false; fi.innerHTML='↻'; re();
 }
 </script>
 </body>
